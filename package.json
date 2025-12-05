@@ -1,0 +1,30 @@
+{
+  "name": "shieldforge",
+  "version": "1.0.0",
+  "description": "An authentication library for standardizing security on a React/Node/GraphQL site",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "npm run dev --workspace=@shieldforge/backend",
+    "dev:frontend": "npm run dev --workspace=@shieldforge/frontend",
+    "build": "npm run build --workspaces",
+    "build:backend": "npm run build --workspace=@shieldforge/backend",
+    "build:frontend": "npm run build --workspace=@shieldforge/frontend",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "db:generate": "npm run db:generate --workspace=@shieldforge/backend",
+    "db:migrate": "npm run db:migrate --workspace=@shieldforge/backend",
+    "db:push": "npm run db:push --workspace=@shieldforge/backend",
+    "codespace:init": "npm install && npm run db:generate && npm run db:push"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "license": "MIT"
+}
