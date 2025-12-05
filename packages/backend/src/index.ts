@@ -1,76 +1,83 @@
-import 'dotenv/config';
-import express from 'express';
-import cors from 'cors';
-import rateLimit from 'express-rate-limit';
-import { createHandler } from 'graphql-http/lib/use/express';
-import { ruruHTML } from 'ruru/server';
-import { schema } from './graphql/schema.js';
-import { authMiddleware, AuthRequest } from './middleware/auth.middleware.js';
+/**
+ * ShieldForge - Modular Authentication Library
+ * 
+ * A highly reusable authentication system for Node.js/GraphQL applications.
+ * 
+ * ## Quick Start - Standalone Server
+ * 
+ * ```bash
+ * npm run dev
+ * ```
+ * 
+ * ## Quick Start - As a Library
+ * 
+ * ```typescript
+ * // Import GraphQL types and fields to compose into your schema
+ * import { 
+ *   UserType, 
+ *   AuthPayloadType, 
+ *   authQueryFields, 
+ *   authMutationFields 
+ * } from '@shieldforge/backend';
+ * 
+ * // Or use the complete schema
+ * import { schema } from '@shieldforge/backend';
+ * 
+ * // Or import auth services directly
+ * import { register, login, logout, verifyToken } from '@shieldforge/backend';
+ * ```
+ * 
+ * @packageDocumentation
+ */
 
-const app = express();
-const PORT = process.env.PORT || 4000;
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+// ============================================================================
+// GraphQL Exports
+// ============================================================================
 
-// Rate limiting for security
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per window
-  message: { error: 'Too many requests, please try again later.' },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
+// GraphQL Types - Use these to build your own schema
+export { UserType, AuthPayloadType, MessageType } from './graphql/types.js';
 
-// Stricter rate limiting for auth operations
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 20, // Limit each IP to 20 auth requests per window
-  message: { error: 'Too many authentication attempts, please try again later.' },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
+// GraphQL Field Definitions - Compose these into your own Query/Mutation types
+export { authQueryFields } from './graphql/fields/query-fields.js';
+export { authMutationFields } from './graphql/fields/mutation-fields.js';
+export { type ShieldForgeContext } from './graphql/fields/context.js';
 
-// Middleware
-app.use(cors({
-  origin: FRONTEND_URL,
-  credentials: true,
-}));
-app.use(express.json());
-app.use(limiter);
-app.use(authMiddleware);
+// Complete GraphQL Types - Use these for standalone schemas
+export { QueryType } from './graphql/queries.js';
+export { MutationType } from './graphql/mutations.js';
 
-// GraphQL endpoint with auth rate limiting
-app.all(
-  '/graphql',
-  authLimiter,
-  createHandler({
-    schema,
-    context: (req) => ({
-      user: (req.raw as AuthRequest).user,
-      token: (req.raw as AuthRequest).token,
-    }),
-  })
-);
+// Complete Schema - Ready to use with graphql-http or similar
+export { schema } from './graphql/schema.js';
 
-// GraphiQL interface (development only)
-if (process.env.NODE_ENV !== 'production') {
-  app.get('/graphiql', (_req, res) => {
-    res.type('html');
-    res.end(ruruHTML({ endpoint: '/graphql' }));
-  });
-}
+// ============================================================================
+// Service Exports
+// ============================================================================
 
-// Health check endpoint
-app.get('/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
+// Authentication Service Functions
+export {
+  register,
+  login,
+  logout,
+  verifyToken,
+  getCurrentUser,
+  type AuthUser,
+  type AuthPayload,
+  type JwtPayload,
+} from './services/auth.service.js';
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`🚀 ShieldForge Backend running at http://localhost:${PORT}`);
-  console.log(`📊 GraphQL endpoint: http://localhost:${PORT}/graphql`);
-  if (process.env.NODE_ENV !== 'production') {
-    console.log(`🔍 GraphiQL: http://localhost:${PORT}/graphiql`);
-  }
-});
+// ============================================================================
+// Middleware Exports
+// ============================================================================
 
-export default app;
+// Express Middleware for extracting auth from requests
+export { 
+  authMiddleware, 
+  type AuthRequest 
+} from './middleware/auth.middleware.js';
+
+// ============================================================================
+// Database Exports
+// ============================================================================
+
+// Prisma client instance (requires DATABASE_URL environment variable)
+export { default as prisma } from './db.js';

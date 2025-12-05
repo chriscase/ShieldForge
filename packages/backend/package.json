@@ -1,13 +1,32 @@
 {
   "name": "@shieldforge/backend",
   "version": "1.0.0",
-  "description": "ShieldForge Backend - Node.js/TypeScript/GraphQL Authentication Server",
+  "description": "ShieldForge Backend - Modular Node.js/TypeScript/GraphQL Authentication Library",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./graphql": {
+      "import": "./dist/graphql/index.js",
+      "types": "./dist/graphql/index.d.ts"
+    },
+    "./services": {
+      "import": "./dist/services/auth.service.js",
+      "types": "./dist/services/auth.service.d.ts"
+    },
+    "./middleware": {
+      "import": "./dist/middleware/auth.middleware.js",
+      "types": "./dist/middleware/auth.middleware.d.ts"
+    }
+  },
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "tsx watch src/server.ts",
     "build": "tsc",
-    "start": "node dist/index.js",
+    "start": "node dist/server.js",
     "lint": "eslint src --ext .ts",
     "test": "vitest run",
     "test:watch": "vitest",
