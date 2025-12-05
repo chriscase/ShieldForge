@@ -3,6 +3,7 @@ import {
   GraphQLString,
   GraphQLNonNull,
   GraphQLID,
+  GraphQLBoolean,
 } from 'graphql';
 
 export const UserType = new GraphQLObjectType({
@@ -58,9 +59,8 @@ export const MessageType = new GraphQLObjectType({
       description: 'The message content',
     },
     success: {
-      type: new GraphQLNonNull(GraphQLString),
+      type: new GraphQLNonNull(GraphQLBoolean),
       description: 'Whether the operation was successful',
-      resolve: (obj) => obj.success ? 'true' : 'false',
     },
   }),
 });

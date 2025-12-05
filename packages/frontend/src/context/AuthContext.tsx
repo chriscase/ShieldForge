@@ -30,7 +30,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             localStorage.removeItem(TOKEN_KEY);
             setToken(null);
           }
-        } catch {
+        } catch (error) {
+          // Log authentication check failures for debugging
+          console.warn('Auth check failed:', error instanceof Error ? error.message : 'Unknown error');
           localStorage.removeItem(TOKEN_KEY);
           setToken(null);
         }

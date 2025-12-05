@@ -3,7 +3,12 @@ import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import prisma from '../db.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'default-secret-change-in-production';
+// Ensure JWT_SECRET is set in production
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET && process.env.NODE_ENV === 'production') {
+  throw new Error('JWT_SECRET environment variable is required in production');
+}
+const SECRET = JWT_SECRET || 'dev-secret-do-not-use-in-production';
 const JWT_EXPIRATION = parseInt(process.env.JWT_EXPIRATION || '86400', 10);
 
 export interface AuthUser {
@@ -64,7 +69,7 @@ export async function register(
   // Generate JWT
   const token = jwt.sign(
     { userId: user.id, sessionId: session.id },
-    JWT_SECRET,
+    SECRET,
     { expiresIn: JWT_EXPIRATION }
   );
 
@@ -109,7 +114,7 @@ export async function login(email: string, password: string): Promise<AuthPayloa
   // Generate JWT
   const token = jwt.sign(
     { userId: user.id, sessionId: session.id },
-    JWT_SECRET,
+    SECRET,
     { expiresIn: JWT_EXPIRATION }
   );
 
@@ -127,7 +132,7 @@ export async function login(email: string, password: string): Promise<AuthPayloa
 
 export async function logout(token: string): Promise<{ message: string; success: boolean }> {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
+    const decoded = jwt.verify(token, SECRET) as JwtPayload;
 
     // Delete session
     await prisma.session.delete({
@@ -135,14 +140,16 @@ export async function logout(token: string): Promise<{ message: string; success:
     });
 
     return { message: 'Logged out successfully', success: true };
-  } catch {
+  } catch (error) {
+    // Log error for debugging but return generic message to client
+    console.warn('Logout failed:', error instanceof Error ? error.message : 'Unknown error');
     return { message: 'Invalid token', success: false };
   }
 }
 
 export async function verifyToken(token: string): Promise<AuthUser | null> {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
+    const decoded = jwt.verify(token, SECRET) as JwtPayload;
 
     // Find session
     const session = await prisma.session.findUnique({
@@ -167,7 +174,9 @@ export async function verifyToken(token: string): Promise<AuthUser | null> {
       createdAt: session.user.createdAt,
       updatedAt: session.user.updatedAt,
     };
-  } catch {
+  } catch (error) {
+    // Log authentication failures for security monitoring
+    console.warn('Token verification failed:', error instanceof Error ? error.message : 'Unknown error');
     return null;
   }
 }
