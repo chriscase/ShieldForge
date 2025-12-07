@@ -1,0 +1,37 @@
+{
+  "name": "@shieldforge/passkey",
+  "version": "1.0.0",
+  "description": "WebAuthn/FIDO2 server-side utilities for ShieldForge authentication",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "test": "echo \"No tests specified\"",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "webauthn",
+    "fido2",
+    "passkey",
+    "authentication",
+    "security",
+    "shieldforge"
+  ],
+  "author": "chriscase",
+  "license": "MIT",
+  "dependencies": {
+    "@shieldforge/types": "^1.0.0",
+    "@simplewebauthn/server": "^9.0.3",
+    "@simplewebauthn/types": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.3"
+  }
+}

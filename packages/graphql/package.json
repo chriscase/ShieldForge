@@ -1,0 +1,39 @@
+{
+  "name": "@shieldforge/graphql",
+  "version": "1.0.0",
+  "description": "GraphQL schema definitions and resolvers for ShieldForge authentication",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "test": "echo \"No tests specified\"",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "graphql",
+    "authentication",
+    "auth",
+    "schema",
+    "resolvers",
+    "shieldforge"
+  ],
+  "author": "chriscase",
+  "license": "MIT",
+  "dependencies": {
+    "@shieldforge/types": "^1.0.0"
+  },
+  "peerDependencies": {
+    "graphql": "^15.0.0 || ^16.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "graphql": "^16.8.1",
+    "typescript": "^5.3.3"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "name": "@shieldforge/core",
+  "version": "1.0.0",
+  "description": "Core backend authentication utilities for ShieldForge",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "test": "echo \"No tests specified\"",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "authentication",
+    "auth",
+    "jwt",
+    "bcrypt",
+    "password",
+    "security",
+    "shieldforge"
+  ],
+  "author": "chriscase",
+  "license": "MIT",
+  "dependencies": {
+    "@shieldforge/types": "^1.0.0",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "peerDependencies": {
+    "nodemailer": "^6.9.0"
+  },
+  "peerDependenciesMeta": {
+    "nodemailer": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/nodemailer": "^6.4.14",
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.3"
+  }
+}
