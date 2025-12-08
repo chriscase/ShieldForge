@@ -19,7 +19,7 @@
   ],
   "scripts": {
     "build": "tsc",
-    "clean": "rm -rf dist",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "test": "echo \"No tests specified\"",
     "prepublishOnly": "npm run build"
   },
