@@ -36,6 +36,24 @@ jobs:
       - name: Run tests
         run: npm test
       
+      - name: Set version from release tag or input
+        run: |
+          # Determine version: use workflow input if provided, otherwise use release tag
+          if [ -n "${{ inputs.version }}" ]; then
+            VERSION="${{ inputs.version }}"
+          elif [ -n "${{ github.event.release.tag_name }}" ]; then
+            VERSION="${{ github.event.release.tag_name }}"
+            VERSION="${VERSION#v}"
+          else
+            echo "No version specified, using existing package.json versions"
+            exit 0
+          fi
+          
+          # Update version in all package.json files
+          npm version $VERSION --no-git-tag-version --workspaces --legacy-peer-deps
+          
+          echo "Updated all packages to version $VERSION"
+      
       - name: Publish packages to NPM
         run: |
           # Publish each package
