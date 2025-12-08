@@ -7,7 +7,7 @@ import {
   UpdatePasswordInput,
   AuthPayload,
   PasswordStrength,
-} from '@shieldforge/types';
+} from '@appforgeapps/shieldforge-types';
 
 /**
  * Data source functions that must be implemented by the consumer

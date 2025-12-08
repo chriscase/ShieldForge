@@ -1,7 +1,15 @@
 {
-  "name": "@shieldforge/core",
+  "name": "@appforgeapps/shieldforge-core",
   "version": "1.0.0",
   "description": "Core backend authentication utilities for ShieldForge",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chriscase/ShieldForge.git",
+    "directory": "packages/core"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
@@ -27,7 +35,7 @@
   "author": "chriscase",
   "license": "MIT",
   "dependencies": {
-    "@shieldforge/types": "^1.0.0",
+    "@appforgeapps/shieldforge-types": "^1.0.0",
     "bcryptjs": "^2.4.3",
     "jsonwebtoken": "^9.0.2"
   },

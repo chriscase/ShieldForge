@@ -1,4 +1,4 @@
-import { PasswordStrength } from '@shieldforge/types';
+import { PasswordStrength } from '@appforgeapps/shieldforge-types';
 
 /**
  * Calculate password strength

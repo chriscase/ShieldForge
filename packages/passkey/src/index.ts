@@ -1,4 +1,4 @@
-import { PasskeyConfig } from '@shieldforge/types';
+import { PasskeyConfig } from '@appforgeapps/shieldforge-types';
 import {
   generatePasskeyRegistrationOptions,
   verifyPasskeyRegistration,
@@ -147,4 +147,4 @@ export type { RegistrationOptions } from './registration';
 export type { AuthenticationOptions } from './authentication';
 
 // Re-export types
-export type { PasskeyConfig, PasskeyCredential, Challenge } from '@shieldforge/types';
+export type { PasskeyConfig, PasskeyCredential, Challenge } from '@appforgeapps/shieldforge-types';

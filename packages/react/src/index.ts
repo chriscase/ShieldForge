@@ -17,4 +17,4 @@ export type {
   RegisterInput,
   UpdateProfileInput,
   UpdatePasswordInput,
-} from '@shieldforge/types';
+} from '@appforgeapps/shieldforge-types';

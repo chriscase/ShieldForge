@@ -1,7 +1,15 @@
 {
-  "name": "@shieldforge/passkey",
+  "name": "@appforgeapps/shieldforge-passkey",
   "version": "1.0.0",
   "description": "WebAuthn/FIDO2 server-side utilities for ShieldForge authentication",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chriscase/ShieldForge.git",
+    "directory": "packages/passkey"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
@@ -26,7 +34,7 @@
   "author": "chriscase",
   "license": "MIT",
   "dependencies": {
-    "@shieldforge/types": "^1.0.0",
+    "@appforgeapps/shieldforge-types": "^1.0.0",
     "@simplewebauthn/server": "^9.0.3",
     "@simplewebauthn/types": "^9.0.1"
   },

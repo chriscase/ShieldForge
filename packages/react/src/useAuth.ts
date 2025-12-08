@@ -20,4 +20,4 @@ export function useAuth(): AuthContextValue {
   return useAuthContext();
 }
 
-export type { AuthUser } from '@shieldforge/types';
+export type { AuthUser } from '@appforgeapps/shieldforge-types';

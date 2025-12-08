@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import { SmtpConfig } from '@shieldforge/types';
+import { SmtpConfig } from '@appforgeapps/shieldforge-types';
 
 /**
  * Send a password reset email

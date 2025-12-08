@@ -1,4 +1,4 @@
-import { ShieldForgeConfig, JwtPayload, PasswordStrength, AuthUser, User } from '@shieldforge/types';
+import { ShieldForgeConfig, JwtPayload, PasswordStrength, AuthUser, User } from '@appforgeapps/shieldforge-types';
 import { hashPassword, verifyPassword } from './password';
 import { generateToken, verifyToken, decodeToken } from './jwt';
 import { calculatePasswordStrength } from './strength';
@@ -127,4 +127,4 @@ export type {
   AuthUser,
   User,
   SmtpConfig,
-} from '@shieldforge/types';
+} from '@appforgeapps/shieldforge-types';

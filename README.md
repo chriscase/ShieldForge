@@ -2,6 +2,102 @@
 
 A comprehensive, highly reusable authentication library for React/Node/GraphQL applications.
 
+## 📦 NPM Packages
+
+All packages are published under the `@appforgeapps` scope on NPM:
+
+```bash
+# Install core authentication
+npm install @appforgeapps/shieldforge-core @appforgeapps/shieldforge-types
+
+# Install React integration
+npm install @appforgeapps/shieldforge-react
+
+# Install GraphQL support
+npm install @appforgeapps/shieldforge-graphql
+
+# Install Passkey/WebAuthn support (optional)
+npm install @appforgeapps/shieldforge-passkey @appforgeapps/shieldforge-browser
+```
+
+## 🚀 Quick Start
+
+See the [complete example](./examples/complete-app) for a full implementation guide, or follow this quick start:
+
+### Backend Setup (Node.js + GraphQL)
+
+```typescript
+import { ShieldForge } from '@appforgeapps/shieldforge-core';
+import { createResolvers, typeDefs } from '@appforgeapps/shieldforge-graphql';
+
+// 1. Configure ShieldForge
+const auth = new ShieldForge({
+  jwtSecret: process.env.JWT_SECRET!,
+  jwtExpiresIn: '7d',
+  saltRounds: 10,
+});
+
+// 2. Create GraphQL resolvers
+const resolvers = createResolvers({
+  dataSource: {
+    getUserById: (id) => db.findUser(id),
+    getUserByEmail: (email) => db.findUserByEmail(email),
+    createUser: (data) => db.createUser(data),
+    // ... other database operations
+  },
+  auth: {
+    hashPassword: (pwd) => auth.hashPassword(pwd),
+    verifyPassword: (pwd, hash) => auth.verifyPassword(pwd, hash),
+    generateToken: (payload) => auth.generateToken(payload),
+    verifyToken: (token) => auth.verifyToken(token),
+    // ... other auth operations
+  },
+});
+
+// 3. Use with Apollo Server
+const server = new ApolloServer({ typeDefs, resolvers });
+```
+
+### Frontend Setup (React)
+
+```tsx
+import { AuthProvider, useAuth, RequireAuth } from '@appforgeapps/shieldforge-react';
+import { LOGIN_MUTATION } from '@appforgeapps/shieldforge-graphql';
+
+// 1. Wrap your app with AuthProvider
+function App() {
+  return (
+    <AuthProvider config={{ storageKey: 'auth.token', enableCrossTabSync: true }}>
+      <YourApp />
+    </AuthProvider>
+  );
+}
+
+// 2. Use the useAuth hook in components
+function LoginForm() {
+  const { login } = useAuth();
+  const [loginMutation] = useMutation(LOGIN_MUTATION, {
+    onCompleted: (data) => login(data.login.token, data.login.user),
+  });
+  // ... form implementation
+}
+
+// 3. Protect routes with RequireAuth
+function Dashboard() {
+  return (
+    <RequireAuth fallback={<LoginPage />}>
+      <ProtectedContent />
+    </RequireAuth>
+  );
+}
+
+// 4. Access auth state anywhere
+function UserProfile() {
+  const { user, isAuthenticated, logout } = useAuth();
+  return <div>Welcome {user?.email}</div>;
+}
+```
+
 ## Overview
 
 ShieldForge provides a complete authentication solution with modular packages that can be used together or independently. Built with TypeScript for type safety and designed for easy integration into any React/Node/GraphQL project.
@@ -20,20 +116,20 @@ ShieldForge provides a complete authentication solution with modular packages th
 
 ## Packages
 
-ShieldForge is organized as a monorepo with the following packages:
+ShieldForge is organized as a monorepo with the following packages, all published under `@appforgeapps` on NPM:
 
-### [@shieldforge/types](./packages/types)
+### [@appforgeapps/shieldforge-types](./packages/types)
 Shared TypeScript interfaces and types used across all packages.
 
 ```bash
-npm install @shieldforge/types
+npm install @appforgeapps/shieldforge-types
 ```
 
-### [@shieldforge/core](./packages/core)
+### [@appforgeapps/shieldforge-core](./packages/core)
 Backend authentication utilities for Node.js applications.
 
 ```bash
-npm install @shieldforge/core
+npm install @appforgeapps/shieldforge-core
 ```
 
 **Features:**
@@ -44,11 +140,11 @@ npm install @shieldforge/core
 - Reset code generation
 - Email sending (nodemailer)
 
-### [@shieldforge/react](./packages/react)
+### [@appforgeapps/shieldforge-react](./packages/react)
 React hooks and components for authentication.
 
 ```bash
-npm install @shieldforge/react
+npm install @appforgeapps/shieldforge-react
 ```
 
 **Features:**
@@ -57,11 +153,11 @@ npm install @shieldforge/react
 - `RequireAuth` component for protected routes
 - `withAuth` HOC wrapper
 
-### [@shieldforge/graphql](./packages/graphql)
+### [@appforgeapps/shieldforge-graphql](./packages/graphql)
 GraphQL schema definitions and resolvers.
 
 ```bash
-npm install @shieldforge/graphql
+npm install @appforgeapps/shieldforge-graphql
 ```
 
 **Features:**
@@ -70,11 +166,11 @@ npm install @shieldforge/graphql
 - Query/Mutation document exports for clients
 - Composable schema fragments
 
-### [@shieldforge/passkey](./packages/passkey)
+### [@appforgeapps/shieldforge-passkey](./packages/passkey)
 WebAuthn/FIDO2 server-side utilities.
 
 ```bash
-npm install @shieldforge/passkey
+npm install @appforgeapps/shieldforge-passkey
 ```
 
 **Features:**
@@ -84,11 +180,11 @@ npm install @shieldforge/passkey
 - Authentication verification
 - Challenge management with TTL
 
-### [@shieldforge/browser](./packages/browser)
+### [@appforgeapps/shieldforge-browser](./packages/browser)
 Client-side WebAuthn utilities.
 
 ```bash
-npm install @shieldforge/browser
+npm install @appforgeapps/shieldforge-browser
 ```
 
 **Features:**
@@ -288,7 +384,7 @@ const verification = await passkeys.verifyRegistration(
 #### Frontend
 
 ```tsx
-import { startRegistration, isWebAuthnSupported } from '@shieldforge/browser';
+import { startRegistration, isWebAuthnSupported } from '@appforgeapps/shieldforge-browser';
 
 async function registerPasskey() {
   if (!isWebAuthnSupported()) {
@@ -355,13 +451,22 @@ interface PasskeyConfig {
 
 ## Examples
 
-See the [examples directory](./examples) for complete working examples:
+Check out the [complete example app](./examples/complete-app) for a full implementation guide with:
 
-- Basic JWT authentication
-- React + Apollo Client integration
-- Passkey authentication
+- **Backend**: Express + GraphQL server with ShieldForge
+- **Frontend**: React app with authentication
+- **Detailed comments**: Every file extensively documented
+- **Production-ready code**: Copy and adapt to your needs
+
+The example includes:
+- Login and registration
 - Password reset flow
 - Protected routes
+- Profile management
+- WebAuthn/Passkey support
+- Apollo Client integration
+
+Each file in the example is a standalone tutorial showing exactly how to use ShieldForge in your application.
 
 ## Development
 
@@ -406,12 +511,39 @@ npm run test:coverage
 
 Contributions are welcome! Please read our contributing guidelines before submitting PRs.
 
+## Publishing to NPM
+
+This library is published to NPM under the `@appforgeapps` scope. To publish a new version:
+
+1. Update version numbers in all `package.json` files
+2. Create a GitHub release with a version tag (e.g., `v1.0.1`)
+3. The GitHub Actions workflow will automatically publish to NPM
+
+Or manually publish:
+
+```bash
+# Build all packages
+npm run build
+
+# Publish individually (requires NPM_TOKEN)
+cd packages/types && npm publish --access public
+cd ../core && npm publish --access public
+cd ../react && npm publish --access public
+cd ../graphql && npm publish --access public
+cd ../passkey && npm publish --access public
+cd ../browser && npm publish --access public
+```
+
+**Note**: You need an NPM account with access to the `@appforgeapps` scope and the `NPM_TOKEN` secret configured in GitHub Actions.
+
 ## License
 
 MIT © chriscase
 
 ## Support
 
-- 📖 [Documentation](./docs)
+- 📖 [Documentation](./README.md)
+- 📦 [NPM Packages](https://www.npmjs.com/org/appforgeapps)
 - 🐛 [Issue Tracker](https://github.com/chriscase/ShieldForge/issues)
 - 💬 [Discussions](https://github.com/chriscase/ShieldForge/discussions)
+- 💡 [Examples](./examples/complete-app)

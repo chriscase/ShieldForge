@@ -1,4 +1,4 @@
-import { User, AuthUser } from '@shieldforge/types';
+import { User, AuthUser } from '@appforgeapps/shieldforge-types';
 
 /**
  * Sanitize user object by removing sensitive fields

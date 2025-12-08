@@ -1,4 +1,4 @@
-import { Challenge } from '@shieldforge/types';
+import { Challenge } from '@appforgeapps/shieldforge-types';
 
 /**
  * In-memory challenge store (use a database in production)

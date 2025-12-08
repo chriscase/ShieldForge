@@ -2,7 +2,7 @@ import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { AuthProvider, useAuth } from '../src';
-import type { AuthUser } from '@shieldforge/types';
+import type { AuthUser } from '@appforgeapps/shieldforge-types';
 
 // Test component that uses useAuth
 function TestComponent() {

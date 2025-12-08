@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { sanitizeUser, generateResetCode, generateSecureToken } from '../src/utils';
-import type { User } from '@shieldforge/types';
+import type { User } from '@appforgeapps/shieldforge-types';
 
 describe('utils', () => {
   describe('sanitizeUser', () => {

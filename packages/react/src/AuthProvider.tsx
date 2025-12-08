@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
-import { AuthUser, AuthProviderConfig } from '@shieldforge/types';
+import { AuthUser, AuthProviderConfig } from '@appforgeapps/shieldforge-types';
 
 export interface AuthContextValue {
   user: AuthUser | null;

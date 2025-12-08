@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { generateToken, verifyToken, decodeToken } from '../src/jwt';
-import type { JwtPayload } from '@shieldforge/types';
+import type { JwtPayload } from '@appforgeapps/shieldforge-types';
 
 describe('jwt', () => {
   const secret = 'test-secret-key';

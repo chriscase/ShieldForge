@@ -26,4 +26,4 @@ export type {
   UpdatePasswordInput,
   AuthPayload,
   PasswordStrength,
-} from '@shieldforge/types';
+} from '@appforgeapps/shieldforge-types';

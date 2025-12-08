@@ -10,7 +10,7 @@ import type {
   AuthenticatorTransportFuture,
 } from '@simplewebauthn/types';
 import { isoBase64URL } from '@simplewebauthn/server/helpers';
-import { PasskeyConfig } from '@shieldforge/types';
+import { PasskeyConfig } from '@appforgeapps/shieldforge-types';
 
 export interface AuthenticationOptions {
   challenge: string;

@@ -1,5 +1,5 @@
 import jwt, { SignOptions } from 'jsonwebtoken';
-import { JwtPayload } from '@shieldforge/types';
+import { JwtPayload } from '@appforgeapps/shieldforge-types';
 
 /**
  * Generate a JWT token
