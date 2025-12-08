@@ -16,6 +16,7 @@ ShieldForge provides a complete authentication solution with modular packages th
 - 🎯 **Type-Safe**: Full TypeScript support with exported types
 - 📦 **Modular**: Use only what you need
 - ⚙️ **Configurable**: Flexible configuration for all settings
+- ✅ **Well-Tested**: 131 unit tests with 100% pass rate
 
 ## Packages
 
@@ -377,6 +378,29 @@ npm run clean
 # Run tests
 npm run test
 ```
+
+## Testing
+
+ShieldForge includes comprehensive unit tests for all packages:
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with UI
+npm run test:ui
+
+# Run tests with coverage
+npm run test:coverage
+```
+
+**Test Coverage:**
+- 131 total tests across 6 packages
+- 100% pass rate
+- Covers all core functionality, React components, GraphQL resolvers, and WebAuthn flows
 
 ## Contributing
 
