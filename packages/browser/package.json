@@ -1,0 +1,48 @@
+{
+  "name": "@appforgeapps/shieldforge-browser",
+  "version": "1.0.0",
+  "description": "Client-side WebAuthn utilities for ShieldForge authentication",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chriscase/ShieldForge.git",
+    "directory": "packages/browser"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "test": "echo \"No tests specified\"",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "webauthn",
+    "browser",
+    "passkey",
+    "authentication",
+    "client",
+    "shieldforge"
+  ],
+  "author": "chriscase",
+  "license": "MIT",
+  "peerDependencies": {
+    "@simplewebauthn/browser": "^9.0.1"
+  },
+  "peerDependenciesMeta": {
+    "@simplewebauthn/browser": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.3"
+  }
+}

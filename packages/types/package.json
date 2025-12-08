@@ -1,0 +1,36 @@
+{
+  "name": "@appforgeapps/shieldforge-types",
+  "version": "1.0.0",
+  "description": "Shared TypeScript types for ShieldForge authentication library",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chriscase/ShieldForge.git",
+    "directory": "packages/types"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "typescript",
+    "types",
+    "authentication",
+    "shieldforge"
+  ],
+  "author": "chriscase",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}

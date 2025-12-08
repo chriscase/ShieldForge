@@ -1,0 +1,51 @@
+{
+  "name": "@appforgeapps/shieldforge-react",
+  "version": "1.0.0",
+  "description": "React hooks and components for ShieldForge authentication",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chriscase/ShieldForge.git",
+    "directory": "packages/react"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "test": "echo \"No tests specified\"",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "react",
+    "authentication",
+    "auth",
+    "hooks",
+    "context",
+    "shieldforge"
+  ],
+  "author": "chriscase",
+  "license": "MIT",
+  "dependencies": {
+    "@appforgeapps/shieldforge-types": "^1.0.0"
+  },
+  "peerDependencies": {
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
+    "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
+    "@types/node": "^20.10.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "typescript": "^5.3.3"
+  }
+}
