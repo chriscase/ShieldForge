@@ -513,28 +513,71 @@ Contributions are welcome! Please read our contributing guidelines before submit
 
 ## Publishing to NPM
 
-This library is published to NPM under the `@appforgeapps` scope. To publish a new version:
+This library is published to NPM under the `@appforgeapps` scope. The repository uses npm workspaces with internal package dependencies configured to use the wildcard (`*`) version, which automatically resolves to local workspace packages during development and publishes correctly to NPM.
 
-1. Update version numbers in all `package.json` files
-2. Create a GitHub release with a version tag (e.g., `v1.0.1`)
-3. The GitHub Actions workflow will automatically publish to NPM
+### Internal Dependencies
 
-Or manually publish:
+All internal package dependencies use the wildcard version specifier:
+
+```json
+{
+  "dependencies": {
+    "@appforgeapps/shieldforge-types": "*"
+  }
+}
+```
+
+This ensures that:
+- During development, npm automatically resolves to the local workspace package
+- During publishing, npm automatically converts to the actual published version
+- No 404 errors when NPM tries to resolve unpublished versions
+
+**Important**: When adding new internal package dependencies, always use `"*"` for workspace packages instead of version ranges like `"^1.0.0"`.
+
+### Automated Publishing via GitHub Actions
+
+The repository includes a GitHub Actions workflow (`.github/workflows/publish.yml`) that automatically publishes packages when a release is created:
+
+1. **Create a GitHub release** with a version tag (e.g., `v1.0.1`)
+2. The workflow will:
+   - Validate the NPM_TOKEN is configured
+   - Install dependencies
+   - Update version numbers in all packages
+   - Build all packages
+   - Run tests
+   - Publish packages in dependency order (types → browser → core/graphql/passkey/react)
+
+**Prerequisites:**
+- The `NPM_TOKEN` secret must be configured in GitHub repository settings
+- The token must have publish rights for the `@appforgeapps` scope
+- Ensure the token is not expired
+
+The workflow publishes packages in the correct dependency order:
+1. `@appforgeapps/shieldforge-types` (no dependencies)
+2. `@appforgeapps/shieldforge-browser` (no internal dependencies)
+3. All other packages that depend on types
+
+### Manual Publishing
+
+To manually publish packages:
 
 ```bash
 # Build all packages
 npm run build
 
-# Publish individually (requires NPM_TOKEN)
-cd packages/types && npm publish --access public
-cd ../core && npm publish --access public
-cd ../react && npm publish --access public
-cd ../graphql && npm publish --access public
-cd ../passkey && npm publish --access public
-cd ../browser && npm publish --access public
+# Run tests
+npm test
+
+# Publish in dependency order using workspace commands
+npm publish --workspace=@appforgeapps/shieldforge-types --access public
+npm publish --workspace=@appforgeapps/shieldforge-browser --access public
+npm publish --workspace=@appforgeapps/shieldforge-core --access public
+npm publish --workspace=@appforgeapps/shieldforge-graphql --access public
+npm publish --workspace=@appforgeapps/shieldforge-passkey --access public
+npm publish --workspace=@appforgeapps/shieldforge-react --access public
 ```
 
-**Note**: You need an NPM account with access to the `@appforgeapps` scope and the `NPM_TOKEN` secret configured in GitHub Actions.
+**Note**: You need an NPM account with access to the `@appforgeapps` scope.
 
 ## License
 
