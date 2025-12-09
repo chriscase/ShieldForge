@@ -34,7 +34,7 @@
   "author": "chriscase",
   "license": "MIT",
   "dependencies": {
-    "@appforgeapps/shieldforge-types": "^1.0.0",
+    "@appforgeapps/shieldforge-types": "*",
     "@simplewebauthn/server": "^9.0.3",
     "@simplewebauthn/types": "^9.0.1"
   },
