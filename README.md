@@ -530,7 +530,7 @@ All internal package dependencies use the wildcard version specifier:
 This ensures that:
 - During development, npm automatically resolves to the local workspace package
 - During publishing, npm automatically converts to the actual published version
-- No 404 errors when NPM tries to resolve unpublished versions
+- During NPM registry lookup, no 404 errors occur when resolving unpublished versions
 
 **Important**: When adding new internal package dependencies, always use `"*"` for workspace packages instead of version ranges like `"^1.0.0"`.
 

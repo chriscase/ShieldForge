@@ -31,6 +31,7 @@ jobs:
         run: |
           if [ -z "$NODE_AUTH_TOKEN" ]; then
             echo "::error::NPM_TOKEN secret is not set. Please configure it in repository settings."
+            echo "::error::The NPM_TOKEN secret is exposed as NODE_AUTH_TOKEN environment variable."
             exit 1
           fi
           echo "NPM token is configured"
