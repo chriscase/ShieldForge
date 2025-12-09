@@ -549,12 +549,14 @@ The repository includes a GitHub Actions workflow (`.github/workflows/publish.ym
 
 **Prerequisites:**
 - The `NPM_TOKEN` secret must be configured in GitHub repository settings:
-  1. Go to your repository on GitHub
-  2. Navigate to **Settings** → **Secrets and variables** → **Actions**
-  3. Click **New repository secret**
-  4. Name: `NPM_TOKEN`
-  5. Value: Your NPM access token (create one at https://www.npmjs.com/settings/YOUR_USERNAME/tokens)
-- The token must have **Automation** or **Publish** access type with publish rights for the `@appforgeapps` scope
+  1. Create an NPM access token at https://www.npmjs.com/settings/tokens/new
+     - Select **Automation** token type (recommended for CI/CD workflows)
+     - Grant access to the `@appforgeapps` scope (required for publishing scoped packages)
+  2. Go to your repository on GitHub
+  3. Navigate to **Settings** → **Secrets and variables** → **Actions**
+  4. Click **New repository secret**
+  5. Name: `NPM_TOKEN`
+  6. Value: Paste your NPM access token
 - Ensure the token is not expired
 
 The workflow publishes packages in the correct dependency order:
