@@ -27,14 +27,19 @@ jobs:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
       
+      - name: Validate NPM token
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "::error::NPM_TOKEN secret is not set. Please configure it in repository settings."
+            echo "::error::The NPM_TOKEN secret is exposed as NODE_AUTH_TOKEN environment variable."
+            exit 1
+          fi
+          echo "NPM token is configured"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      
       - name: Install dependencies
         run: npm ci
-      
-      - name: Build packages
-        run: npm run build
-      
-      - name: Run tests
-        run: npm test
       
       - name: Set version from release tag or input
         run: |
@@ -45,10 +50,11 @@ jobs:
             VERSION="${RELEASE_TAG#v}"
           else
             echo "No version specified, using existing package.json versions"
-            echo "Skipping version update step"
+            echo "Skipping version update and rebuild steps"
             exit 0
           fi
           
+          echo "Setting version to $VERSION"
           # Update version in all package.json files
           npm version "$VERSION" --no-git-tag-version --workspaces --legacy-peer-deps
           
@@ -57,14 +63,37 @@ jobs:
           INPUT_VERSION: ${{ inputs.version }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
       
+      - name: Build packages
+        run: npm run build
+      
+      - name: Run tests
+        run: npm test
+      
       - name: Publish packages to NPM
         run: |
-          # Publish each package
-          cd packages/types && npm publish --access public
-          cd ../core && npm publish --access public
-          cd ../react && npm publish --access public
-          cd ../graphql && npm publish --access public
-          cd ../passkey && npm publish --access public
-          cd ../browser && npm publish --access public
+          echo "Publishing packages to NPM in dependency order..."
+          
+          # Publish types package first (no dependencies)
+          echo "Publishing @appforgeapps/shieldforge-types..."
+          npm publish --workspace=@appforgeapps/shieldforge-types --access public
+          
+          # Publish browser package (no internal dependencies)
+          echo "Publishing @appforgeapps/shieldforge-browser..."
+          npm publish --workspace=@appforgeapps/shieldforge-browser --access public
+          
+          # Publish packages that depend on types
+          echo "Publishing @appforgeapps/shieldforge-core..."
+          npm publish --workspace=@appforgeapps/shieldforge-core --access public
+          
+          echo "Publishing @appforgeapps/shieldforge-graphql..."
+          npm publish --workspace=@appforgeapps/shieldforge-graphql --access public
+          
+          echo "Publishing @appforgeapps/shieldforge-passkey..."
+          npm publish --workspace=@appforgeapps/shieldforge-passkey --access public
+          
+          echo "Publishing @appforgeapps/shieldforge-react..."
+          npm publish --workspace=@appforgeapps/shieldforge-react --access public
+          
+          echo "All packages published successfully!"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

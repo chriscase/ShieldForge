@@ -35,7 +35,7 @@
   "author": "chriscase",
   "license": "MIT",
   "dependencies": {
-    "@appforgeapps/shieldforge-types": "^1.0.0",
+    "@appforgeapps/shieldforge-types": "*",
     "bcryptjs": "^2.4.3",
     "jsonwebtoken": "^9.0.2"
   },
