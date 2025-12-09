@@ -548,8 +548,13 @@ The repository includes a GitHub Actions workflow (`.github/workflows/publish.ym
    - Publish packages in dependency order (types → browser → core/graphql/passkey/react)
 
 **Prerequisites:**
-- The `NPM_TOKEN` secret must be configured in GitHub repository settings
-- The token must have publish rights for the `@appforgeapps` scope
+- The `NPM_TOKEN` secret must be configured in GitHub repository settings:
+  1. Go to your repository on GitHub
+  2. Navigate to **Settings** → **Secrets and variables** → **Actions**
+  3. Click **New repository secret**
+  4. Name: `NPM_TOKEN`
+  5. Value: Your NPM access token (create one at https://www.npmjs.com/settings/YOUR_USERNAME/tokens)
+- The token must have **Automation** or **Publish** access type with publish rights for the `@appforgeapps` scope
 - Ensure the token is not expired
 
 The workflow publishes packages in the correct dependency order:
