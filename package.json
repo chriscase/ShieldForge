@@ -7,12 +7,12 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build --workspaces --if-present",
+    "build": "npm run build -w @appforgeapps/shieldforge-types && npm run build -w @appforgeapps/shieldforge-browser && npm run build -w @appforgeapps/shieldforge-core && npm run build -w @appforgeapps/shieldforge-graphql && npm run build -w @appforgeapps/shieldforge-passkey && npm run build -w @appforgeapps/shieldforge-react",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
-    "clean": "npm run clean --workspaces --if-present && rm -rf node_modules",
+    "clean": "npm run clean --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present"
   },
   "keywords": [
