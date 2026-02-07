@@ -36,29 +36,51 @@ export function AuthProvider({
     storageKey = 'shieldforge.token',
     pollInterval,
     enableCrossTabSync = true,
-    initialToken = null,
-    initialUser = null,
+    initialToken,
+    initialUser,
   } = config;
 
+  // NOTE: useState initializers only run once. In SSR frameworks (Next.js),
+  // they run on the server where window is undefined, and React hydration
+  // does NOT re-run them on the client. So we initialize as null here and
+  // use a useEffect below to hydrate from localStorage on the client.
   const [token, setToken] = useState<string | null>(() => {
     if (initialToken !== undefined) return initialToken;
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem(storageKey);
-    }
     return null;
   });
 
   const [user, setUser] = useState<AuthUser | null>(() => {
     if (initialUser !== undefined) return initialUser;
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem(`${storageKey}.user`);
-      return stored ? JSON.parse(stored) : null;
-    }
     return null;
   });
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Hydrate auth state from localStorage on client mount.
+  // This runs after hydration so it works correctly with SSR frameworks.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    // Only hydrate from storage if initial values weren't explicitly provided
+    if (initialToken === undefined) {
+      const storedToken = localStorage.getItem(storageKey);
+      if (storedToken) {
+        setToken(storedToken);
+      }
+    }
+    if (initialUser === undefined) {
+      const storedUser = localStorage.getItem(`${storageKey}.user`);
+      if (storedUser) {
+        try {
+          setUser(JSON.parse(storedUser));
+        } catch {
+          // Invalid JSON in storage, ignore
+        }
+      }
+    }
+    setIsLoading(false);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- only on mount
 
   const login = useCallback(
     (newToken: string, newUser: AuthUser) => {
