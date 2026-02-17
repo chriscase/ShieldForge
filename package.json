@@ -13,7 +13,9 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "clean": "npm run clean --workspaces --if-present",
-    "lint": "npm run lint --workspaces --if-present"
+    "lint": "npm run lint --workspaces --if-present",
+    "publish:npm": "./scripts/publish.sh",
+    "publish:dry-run": "./scripts/publish.sh --dry-run"
   },
   "keywords": [
     "authentication",
