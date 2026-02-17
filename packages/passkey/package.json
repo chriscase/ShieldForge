@@ -1,6 +1,6 @@
 {
   "name": "@appforgeapps/shieldforge-passkey",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "WebAuthn/FIDO2 server-side utilities for ShieldForge authentication",
   "repository": {
     "type": "git",
