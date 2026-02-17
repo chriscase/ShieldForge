@@ -16,6 +16,9 @@ export interface User {
   email: string;
   username?: string;
   name?: string;
+  displayName?: string;
+  role?: string;
+  avatarUrl?: string;
   passwordHash?: string;
   accountStatus?: UserAccountStatus;
   emailVerified?: boolean;
@@ -31,6 +34,9 @@ export interface AuthUser {
   email: string;
   username?: string;
   name?: string;
+  displayName?: string;
+  role?: string;
+  avatarUrl?: string;
   accountStatus?: UserAccountStatus;
   emailVerified?: boolean;
   createdAt?: Date;
@@ -144,11 +150,32 @@ export interface PasskeyConfig {
  * Auth provider configuration for React
  */
 export interface AuthProviderConfig {
+  /**
+   * Auth mode:
+   * - 'token' (default): Store JWT in localStorage, pass via Authorization header.
+   * - 'cookie': Server manages httpOnly cookie. Frontend never touches the token.
+   *   Uses refreshAuth to check session state via GET /auth/me.
+   */
+  mode?: 'token' | 'cookie';
   storageKey?: string;
   pollInterval?: number;
   enableCrossTabSync?: boolean;
   initialToken?: string | null;
   initialUser?: AuthUser | null;
+}
+
+/**
+ * Data source interface for auth operations.
+ * Implement this to connect ShieldForge to your database.
+ */
+export interface AuthDataSource {
+  getUserById(id: string): Promise<User | null>;
+  getUserByEmail(email: string): Promise<User | null>;
+  createUser(input: RegisterInput & { passwordHash: string }): Promise<User>;
+  updateUser(id: string, input: Partial<User>): Promise<User>;
+  createPasswordReset(userId: string, code: string, expiresAt: Date): Promise<void>;
+  getPasswordReset(code: string): Promise<{ userId: string; expiresAt: Date } | null>;
+  deletePasswordReset(code: string): Promise<void>;
 }
 
 /**

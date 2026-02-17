@@ -7,23 +7,11 @@ import {
   UpdatePasswordInput,
   AuthPayload,
   PasswordStrength,
+  AuthDataSource,
 } from '@appforgeapps/shieldforge-types';
 
-/**
- * Data source functions that must be implemented by the consumer
- */
-export interface AuthDataSource {
-  // User operations
-  getUserById(id: string): Promise<User | null>;
-  getUserByEmail(email: string): Promise<User | null>;
-  createUser(input: RegisterInput & { passwordHash: string }): Promise<User>;
-  updateUser(id: string, input: Partial<User>): Promise<User>;
-  
-  // Password reset operations
-  createPasswordReset(userId: string, code: string, expiresAt: Date): Promise<void>;
-  getPasswordReset(code: string): Promise<{ userId: string; expiresAt: Date } | null>;
-  deletePasswordReset(code: string): Promise<void>;
-}
+// Re-export AuthDataSource for backward compatibility (moved to shieldforge-types)
+export type { AuthDataSource } from '@appforgeapps/shieldforge-types';
 
 /**
  * Context interface that must be provided to resolvers

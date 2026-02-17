@@ -12,6 +12,16 @@
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./fastify": {
+      "types": "./dist/fastify/index.d.ts",
+      "default": "./dist/fastify/index.js"
+    }
+  },
   "files": [
     "dist",
     "src",
@@ -40,18 +50,23 @@
     "jsonwebtoken": "^9.0.2"
   },
   "peerDependencies": {
+    "fastify": "^4.0.0 || ^5.0.0",
     "nodemailer": "^6.9.0 || ^7.0.0"
   },
   "peerDependenciesMeta": {
     "nodemailer": {
+      "optional": true
+    },
+    "fastify": {
       "optional": true
     }
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.5",
-    "@types/nodemailer": "^6.4.14",
     "@types/node": "^20.10.0",
+    "@types/nodemailer": "^6.4.14",
+    "fastify": "^5.7.4",
     "typescript": "^5.3.3"
   }
 }

@@ -33,12 +33,15 @@ export function AuthProvider({
   refreshAuth: refreshAuthProp,
 }: AuthProviderProps) {
   const {
+    mode = 'token',
     storageKey = 'shieldforge.token',
     pollInterval,
     enableCrossTabSync = true,
     initialToken,
     initialUser,
   } = config;
+
+  const isCookieMode = mode === 'cookie';
 
   // NOTE: useState initializers only run once. In SSR frameworks (Next.js),
   // they run on the server where window is undefined, and React hydration
@@ -56,82 +59,117 @@ export function AuthProvider({
 
   const [isLoading, setIsLoading] = useState(true);
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const broadcastChannelRef = useRef<BroadcastChannel | null>(null);
 
-  // Hydrate auth state from localStorage on client mount.
-  // This runs after hydration so it works correctly with SSR frameworks.
+  // Hydrate auth state on client mount.
+  // Token mode: reads from localStorage.
+  // Cookie mode: calls refreshAuth() to check session via httpOnly cookie.
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    // Only hydrate from storage if initial values weren't explicitly provided
-    if (initialToken === undefined) {
-      const storedToken = localStorage.getItem(storageKey);
-      if (storedToken) {
-        setToken(storedToken);
+    if (isCookieMode) {
+      // Cookie mode: hydrate by asking the server for session state
+      if (refreshAuthProp) {
+        refreshAuthProp()
+          .then((result) => {
+            if (result) {
+              setToken(result.token);
+              setUser(result.user);
+            }
+          })
+          .catch(() => {
+            // Server unreachable or session expired — stay unauthenticated
+          })
+          .finally(() => setIsLoading(false));
+      } else {
+        setIsLoading(false);
       }
-    }
-    if (initialUser === undefined) {
-      const storedUser = localStorage.getItem(`${storageKey}.user`);
-      if (storedUser) {
-        try {
-          setUser(JSON.parse(storedUser));
-        } catch {
-          // Invalid JSON in storage, ignore
+    } else {
+      // Token mode: hydrate from localStorage
+      if (initialToken === undefined) {
+        const storedToken = localStorage.getItem(storageKey);
+        if (storedToken) {
+          setToken(storedToken);
         }
       }
+      if (initialUser === undefined) {
+        const storedUser = localStorage.getItem(`${storageKey}.user`);
+        if (storedUser) {
+          try {
+            setUser(JSON.parse(storedUser));
+          } catch {
+            // Invalid JSON in storage, ignore
+          }
+        }
+      }
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps -- only on mount
 
   const login = useCallback(
     (newToken: string, newUser: AuthUser) => {
       setToken(newToken);
       setUser(newUser);
-      
+
       if (typeof window !== 'undefined') {
-        localStorage.setItem(storageKey, newToken);
-        localStorage.setItem(`${storageKey}.user`, JSON.stringify(newUser));
-        
+        if (!isCookieMode) {
+          // Token mode: persist to localStorage
+          localStorage.setItem(storageKey, newToken);
+          localStorage.setItem(`${storageKey}.user`, JSON.stringify(newUser));
+        }
+
         // Broadcast to other tabs
         if (enableCrossTabSync) {
-          localStorage.setItem(`${storageKey}.event`, JSON.stringify({ type: 'login', timestamp: Date.now() }));
+          if (isCookieMode) {
+            broadcastChannelRef.current?.postMessage({ type: 'login' });
+          } else {
+            localStorage.setItem(`${storageKey}.event`, JSON.stringify({ type: 'login', timestamp: Date.now() }));
+          }
         }
       }
-      
+
       onLogin?.(newToken, newUser);
     },
-    [storageKey, enableCrossTabSync, onLogin]
+    [storageKey, enableCrossTabSync, isCookieMode, onLogin]
   );
 
   const logout = useCallback(() => {
     setToken(null);
     setUser(null);
-    
+
     if (typeof window !== 'undefined') {
-      localStorage.removeItem(storageKey);
-      localStorage.removeItem(`${storageKey}.user`);
-      
+      if (!isCookieMode) {
+        // Token mode: clear localStorage
+        localStorage.removeItem(storageKey);
+        localStorage.removeItem(`${storageKey}.user`);
+      }
+
       // Broadcast to other tabs
       if (enableCrossTabSync) {
-        localStorage.setItem(`${storageKey}.event`, JSON.stringify({ type: 'logout', timestamp: Date.now() }));
+        if (isCookieMode) {
+          broadcastChannelRef.current?.postMessage({ type: 'logout' });
+        } else {
+          localStorage.setItem(`${storageKey}.event`, JSON.stringify({ type: 'logout', timestamp: Date.now() }));
+        }
       }
     }
-    
+
     onLogout?.();
-  }, [storageKey, enableCrossTabSync, onLogout]);
+  }, [storageKey, enableCrossTabSync, isCookieMode, onLogout]);
 
   const updateUser = useCallback(
     (newUser: AuthUser) => {
       setUser(newUser);
-      if (typeof window !== 'undefined') {
+      if (typeof window !== 'undefined' && !isCookieMode) {
         localStorage.setItem(`${storageKey}.user`, JSON.stringify(newUser));
       }
     },
-    [storageKey]
+    [storageKey, isCookieMode]
   );
 
   const refreshAuth = useCallback(async () => {
     if (!refreshAuthProp) return;
-    
+
     setIsLoading(true);
     try {
       const result = await refreshAuthProp();
@@ -152,30 +190,58 @@ export function AuthProvider({
   useEffect(() => {
     if (!enableCrossTabSync || typeof window === 'undefined') return;
 
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === `${storageKey}.event` && e.newValue) {
-        try {
-          const event = JSON.parse(e.newValue);
-          if (event.type === 'login') {
-            const newToken = localStorage.getItem(storageKey);
-            const newUserStr = localStorage.getItem(`${storageKey}.user`);
-            if (newToken && newUserStr) {
-              setToken(newToken);
-              setUser(JSON.parse(newUserStr));
-            }
-          } else if (event.type === 'logout') {
-            setToken(null);
-            setUser(null);
-          }
-        } catch (error) {
-          console.error('Failed to parse storage event:', error);
+    if (isCookieMode) {
+      // Cookie mode: use BroadcastChannel (cookies are shared, just sync React state)
+      if (typeof BroadcastChannel === 'undefined') return;
+      const channel = new BroadcastChannel(`shieldforge:${storageKey}`);
+      broadcastChannelRef.current = channel;
+      channel.onmessage = (e: MessageEvent) => {
+        if (e.data?.type === 'login' && refreshAuthProp) {
+          // Another tab logged in — refresh to pick up the session
+          refreshAuthProp()
+            .then((result) => {
+              if (result) {
+                setToken(result.token);
+                setUser(result.user);
+              }
+            })
+            .catch(() => {});
+        } else if (e.data?.type === 'logout') {
+          setToken(null);
+          setUser(null);
         }
-      }
-    };
+      };
+      return () => {
+        channel.close();
+        broadcastChannelRef.current = null;
+      };
+    } else {
+      // Token mode: use localStorage events
+      const handleStorageChange = (e: StorageEvent) => {
+        if (e.key === `${storageKey}.event` && e.newValue) {
+          try {
+            const event = JSON.parse(e.newValue);
+            if (event.type === 'login') {
+              const newToken = localStorage.getItem(storageKey);
+              const newUserStr = localStorage.getItem(`${storageKey}.user`);
+              if (newToken && newUserStr) {
+                setToken(newToken);
+                setUser(JSON.parse(newUserStr));
+              }
+            } else if (event.type === 'logout') {
+              setToken(null);
+              setUser(null);
+            }
+          } catch (error) {
+            console.error('Failed to parse storage event:', error);
+          }
+        }
+      };
 
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, [storageKey, enableCrossTabSync]);
+      window.addEventListener('storage', handleStorageChange);
+      return () => window.removeEventListener('storage', handleStorageChange);
+    }
+  }, [storageKey, enableCrossTabSync, isCookieMode, refreshAuthProp]);
 
   // Polling for session validation
   useEffect(() => {
@@ -193,7 +259,7 @@ export function AuthProvider({
     user,
     token,
     isLoading,
-    isAuthenticated: !!token && !!user,
+    isAuthenticated: isCookieMode ? !!user : !!token && !!user,
     login,
     logout,
     updateUser,

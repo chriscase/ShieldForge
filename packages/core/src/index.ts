@@ -15,7 +15,7 @@ export class ShieldForge {
     this.config = {
       jwtSecret: config.jwtSecret,
       jwtExpiresIn: config.jwtExpiresIn || '7d',
-      saltRounds: config.saltRounds || 10,
+      saltRounds: config.saltRounds || 12,
       smtp: config.smtp,
     };
   }
