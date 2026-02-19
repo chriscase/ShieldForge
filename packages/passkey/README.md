@@ -1,17 +1,17 @@
-# @shieldforge/passkey
+# @appforgeapps/shieldforge-passkey
 
 WebAuthn/FIDO2 server-side utilities for passwordless authentication.
 
 ## Installation
 
 ```bash
-npm install @shieldforge/passkey
+npm install @appforgeapps/shieldforge-passkey
 ```
 
 ## Quick Start
 
 ```typescript
-import { PasskeyService } from '@shieldforge/passkey';
+import { PasskeyService } from '@appforgeapps/shieldforge-passkey';
 
 const passkeys = new PasskeyService({
   rpName: 'My App',
@@ -120,7 +120,7 @@ Challenges are automatically stored and validated:
 passkeys.clearExpiredChallenges();
 
 // Or use individual functions
-import { storeChallenge, getChallenge, deleteChallenge } from '@shieldforge/passkey';
+import { storeChallenge, getChallenge, deleteChallenge } from '@appforgeapps/shieldforge-passkey';
 
 storeChallenge(challenge, userId, ttl);
 const stored = getChallenge(challenge);
@@ -145,7 +145,7 @@ import {
   verifyPasskeyRegistration,
   generatePasskeyAuthenticationOptions,
   verifyPasskeyAuthentication,
-} from '@shieldforge/passkey';
+} from '@appforgeapps/shieldforge-passkey';
 ```
 
 ## Security Considerations

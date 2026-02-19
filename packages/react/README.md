@@ -1,11 +1,11 @@
-# @shieldforge/react
+# @appforgeapps/shieldforge-react
 
 React hooks and components for authentication.
 
 ## Installation
 
 ```bash
-npm install @shieldforge/react
+npm install @appforgeapps/shieldforge-react
 ```
 
 Peer dependencies:
@@ -18,7 +18,7 @@ npm install react react-dom
 ### 1. Wrap your app with AuthProvider
 
 ```tsx
-import { AuthProvider } from '@shieldforge/react';
+import { AuthProvider } from '@appforgeapps/shieldforge-react';
 
 function App() {
   return (
@@ -37,7 +37,7 @@ function App() {
 ### 2. Use the useAuth hook
 
 ```tsx
-import { useAuth } from '@shieldforge/react';
+import { useAuth } from '@appforgeapps/shieldforge-react';
 
 function Dashboard() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -58,7 +58,7 @@ function Dashboard() {
 ### 3. Protect routes with RequireAuth
 
 ```tsx
-import { RequireAuth } from '@shieldforge/react';
+import { RequireAuth } from '@appforgeapps/shieldforge-react';
 
 function ProtectedRoute() {
   return (
@@ -118,7 +118,7 @@ Props:
 ### withAuth HOC
 
 ```tsx
-import { withAuth, WithAuthProps } from '@shieldforge/react';
+import { withAuth, WithAuthProps } from '@appforgeapps/shieldforge-react';
 
 interface Props extends WithAuthProps {
   // your other props

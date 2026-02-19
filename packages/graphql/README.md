@@ -1,11 +1,11 @@
-# @shieldforge/graphql
+# @appforgeapps/shieldforge-graphql
 
 GraphQL schema definitions and resolvers for authentication.
 
 ## Installation
 
 ```bash
-npm install @shieldforge/graphql
+npm install @appforgeapps/shieldforge-graphql
 ```
 
 Peer dependencies:
@@ -18,8 +18,8 @@ npm install graphql
 ### Backend Setup
 
 ```typescript
-import { createResolvers, typeDefs } from '@shieldforge/graphql';
-import { ShieldForge } from '@shieldforge/core';
+import { createResolvers, typeDefs } from '@appforgeapps/shieldforge-graphql';
+import { ShieldForge } from '@appforgeapps/shieldforge-core';
 
 const auth = new ShieldForge({
   jwtSecret: process.env.JWT_SECRET!,
@@ -81,9 +81,9 @@ const server = new ApolloServer({
 ### Frontend Usage
 
 ```tsx
-import { LOGIN_MUTATION, REGISTER_MUTATION, ME_QUERY } from '@shieldforge/graphql';
+import { LOGIN_MUTATION, REGISTER_MUTATION, ME_QUERY } from '@appforgeapps/shieldforge-graphql';
 import { useMutation, useQuery } from '@apollo/client';
-import { useAuth } from '@shieldforge/react';
+import { useAuth } from '@appforgeapps/shieldforge-react';
 
 function LoginForm() {
   const [login, { loading, error }] = useMutation(LOGIN_MUTATION);
@@ -143,7 +143,7 @@ import {
   CHECK_PASSWORD_STRENGTH_QUERY,
   USER_FIELDS_FRAGMENT,
   AUTH_PAYLOAD_FRAGMENT,
-} from '@shieldforge/graphql';
+} from '@appforgeapps/shieldforge-graphql';
 ```
 
 ## Extending the Schema

@@ -34,6 +34,7 @@ export interface ResolverDependencies {
     calculatePasswordStrength(password: string): PasswordStrength;
     sanitizeUser(user: User): AuthUser;
     generateResetCode(length?: number): string;
+    hashResetCode(code: string): string;
     sendPasswordResetEmail(to: string, code: string, resetUrl?: string): Promise<void>;
   };
 }
@@ -96,11 +97,10 @@ export function createResolvers(deps: ResolverDependencies) {
           throw new Error(`Password is too weak: ${strength.feedback.join(', ')}`);
         }
 
-        // Hash password and create user
+        // Hash password and create user (plaintext password never reaches data source)
         const passwordHash = await auth.hashPassword(password);
         const user = await dataSource.createUser({
           email,
-          password,
           username,
           name,
           passwordHash,
@@ -171,9 +171,12 @@ export function createResolvers(deps: ResolverDependencies) {
         }
 
         const resetCode = auth.generateResetCode();
+        const codeHash = auth.hashResetCode(resetCode);
         const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
-        await dataSource.createPasswordReset(user.id, resetCode, expiresAt);
+        // Store the hash, not the raw code
+        await dataSource.createPasswordReset(user.id, codeHash, expiresAt);
+        // Send the raw code to the user via email
         await auth.sendPasswordResetEmail(user.email, resetCode);
 
         return true;
@@ -183,13 +186,15 @@ export function createResolvers(deps: ResolverDependencies) {
         _parent: any,
         args: { code: string; newPassword: string }
       ): Promise<boolean> => {
-        const reset = await dataSource.getPasswordReset(args.code);
+        // Look up by the hashed code
+        const codeHash = auth.hashResetCode(args.code);
+        const reset = await dataSource.getPasswordReset(codeHash);
         if (!reset) {
           throw new Error('Invalid or expired reset code');
         }
 
         if (new Date() > reset.expiresAt) {
-          await dataSource.deletePasswordReset(args.code);
+          await dataSource.deletePasswordReset(codeHash);
           throw new Error('Reset code has expired');
         }
 
@@ -200,7 +205,7 @@ export function createResolvers(deps: ResolverDependencies) {
 
         const newPasswordHash = await auth.hashPassword(args.newPassword);
         await dataSource.updateUser(reset.userId, { passwordHash: newPasswordHash });
-        await dataSource.deletePasswordReset(args.code);
+        await dataSource.deletePasswordReset(codeHash);
 
         return true;
       },

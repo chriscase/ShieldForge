@@ -1,4 +1,4 @@
-import { PasskeyConfig } from '@appforgeapps/shieldforge-types';
+import { PasskeyConfig, ChallengeStore } from '@appforgeapps/shieldforge-types';
 import {
   generatePasskeyRegistrationOptions,
   verifyPasskeyRegistration,
@@ -8,6 +8,7 @@ import {
   verifyPasskeyAuthentication,
 } from './authentication';
 import {
+  InMemoryChallengeStore,
   storeChallenge,
   getChallenge,
   deleteChallenge,
@@ -15,7 +16,7 @@ import {
 } from './challenges';
 
 export class PasskeyService {
-  private config: Required<PasskeyConfig>;
+  private config: Required<Omit<PasskeyConfig, 'challengeStore'>> & { challengeStore: ChallengeStore };
 
   constructor(config: PasskeyConfig) {
     this.config = {
@@ -23,6 +24,7 @@ export class PasskeyService {
       rpId: config.rpId,
       origin: config.origin,
       challengeTTL: config.challengeTTL || 5 * 60 * 1000, // 5 minutes default
+      challengeStore: config.challengeStore || new InMemoryChallengeStore(),
     };
   }
 
@@ -45,10 +47,10 @@ export class PasskeyService {
       user,
       excludeCredentials
     );
-    
-    // Store challenge
-    storeChallenge(options.challenge, user.id, this.config.challengeTTL);
-    
+
+    // Store challenge (one-time use)
+    await this.config.challengeStore.store(options.challenge, user.id, this.config.challengeTTL);
+
     return options;
   }
 
@@ -56,7 +58,7 @@ export class PasskeyService {
    * Verify registration response
    */
   async verifyRegistration(response: any, expectedChallenge: string) {
-    const challenge = getChallenge(expectedChallenge);
+    const challenge = await this.config.challengeStore.get(expectedChallenge);
     if (!challenge) {
       throw new Error('Challenge not found or expired');
     }
@@ -67,8 +69,8 @@ export class PasskeyService {
       expectedChallenge
     );
 
-    // Delete used challenge
-    deleteChallenge(expectedChallenge);
+    // Delete used challenge (one-time use semantics)
+    await this.config.challengeStore.delete(expectedChallenge);
 
     return verification;
   }
@@ -87,8 +89,8 @@ export class PasskeyService {
       allowCredentials
     );
 
-    // Store challenge
-    storeChallenge(options.challenge, undefined, this.config.challengeTTL);
+    // Store challenge (one-time use)
+    await this.config.challengeStore.store(options.challenge, undefined, this.config.challengeTTL);
 
     return options;
   }
@@ -105,7 +107,7 @@ export class PasskeyService {
       counter: number;
     }
   ) {
-    const challenge = getChallenge(expectedChallenge);
+    const challenge = await this.config.challengeStore.get(expectedChallenge);
     if (!challenge) {
       throw new Error('Challenge not found or expired');
     }
@@ -117,8 +119,8 @@ export class PasskeyService {
       authenticator
     );
 
-    // Delete used challenge
-    deleteChallenge(expectedChallenge);
+    // Delete used challenge (one-time use semantics)
+    await this.config.challengeStore.delete(expectedChallenge);
 
     return verification;
   }
@@ -126,17 +128,14 @@ export class PasskeyService {
   /**
    * Clear expired challenges manually
    */
-  clearExpiredChallenges() {
-    clearExpiredChallenges();
+  async clearExpiredChallenges() {
+    await this.config.challengeStore.clearExpired();
   }
 }
 
-// Export individual functions
+// Export individual functions (backward-compatible, uses default in-memory store)
 export {
-  generatePasskeyRegistrationOptions,
-  verifyPasskeyRegistration,
-  generatePasskeyAuthenticationOptions,
-  verifyPasskeyAuthentication,
+  InMemoryChallengeStore,
   storeChallenge,
   getChallenge,
   deleteChallenge,
@@ -147,4 +146,4 @@ export type { RegistrationOptions } from './registration';
 export type { AuthenticationOptions } from './authentication';
 
 // Re-export types
-export type { PasskeyConfig, PasskeyCredential, Challenge } from '@appforgeapps/shieldforge-types';
+export type { PasskeyConfig, PasskeyCredential, Challenge, ChallengeStore } from '@appforgeapps/shieldforge-types';

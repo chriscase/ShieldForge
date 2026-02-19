@@ -65,6 +65,27 @@ export interface ShieldForgeFastifyOptions {
 
   /** Hook called after successful login */
   onAfterLogin?: (user: AuthUser, request: FastifyRequest) => Promise<void>;
+
+  /**
+   * Rate-limiting hook for login attempts.
+   * Called before password verification. Throw an Error or return false to reject.
+   * Use this to integrate your preferred rate-limiter (e.g., rate-limiter-flexible).
+   *
+   * @param key - A string identifying the request (e.g., IP address or email)
+   * @param request - The Fastify request object
+   */
+  onLoginAttempt?: (key: string, request: FastifyRequest) => Promise<void>;
+
+  /**
+   * Rate-limiting hook for password reset requests.
+   * Called before generating a reset code. Throw an Error or return false to reject.
+   */
+  onResetAttempt?: (key: string, request: FastifyRequest) => Promise<void>;
+
+  /**
+   * Called after a failed login attempt. Use this to record failures for lockout logic.
+   */
+  onLoginFailure?: (key: string, request: FastifyRequest) => Promise<void>;
 }
 
 // Augment Fastify types
@@ -161,7 +182,7 @@ const shieldForgeFastifyPlugin: FastifyPluginAsync<ShieldForgeFastifyOptions> = 
     if (cookieHeader) {
       const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${cookieConfig.name}=([^;]+)`));
       if (match) {
-        token = match[1];
+        token = decodeURIComponent(match[1]);
       }
     }
 
@@ -191,6 +212,7 @@ const shieldForgeFastifyPlugin: FastifyPluginAsync<ShieldForgeFastifyOptions> = 
   const requireAuth = async (request: FastifyRequest, reply: FastifyReply) => {
     if (!request.user) {
       reply.status(401).send({ error: 'Authentication required' });
+      return;
     }
   };
 
@@ -202,6 +224,7 @@ const shieldForgeFastifyPlugin: FastifyPluginAsync<ShieldForgeFastifyOptions> = 
       }
       if (!request.user.role || !roles.includes(request.user.role)) {
         reply.status(403).send({ error: 'Insufficient permissions' });
+        return;
       }
     };
   };
@@ -213,7 +236,7 @@ const shieldForgeFastifyPlugin: FastifyPluginAsync<ShieldForgeFastifyOptions> = 
 
   function setSessionCookie(reply: FastifyReply, token: string) {
     const parts = [
-      `${cookieConfig.name}=${token}`,
+      `${cookieConfig.name}=${encodeURIComponent(token)}`,
       `Path=${cookieConfig.path}`,
       `Max-Age=${cookieConfig.maxAge}`,
       `SameSite=${cookieConfig.sameSite.charAt(0).toUpperCase() + cookieConfig.sameSite.slice(1)}`,
@@ -236,17 +259,32 @@ const shieldForgeFastifyPlugin: FastifyPluginAsync<ShieldForgeFastifyOptions> = 
 
   if (!enableRoutes) return;
 
+  const prefix = opts.prefix ?? '/auth';
+  const route = (path: string) => `${prefix}${path}`;
+
   if (routeConfig.login) {
-    fastify.post<{ Body: LoginInput }>('/login', async (request, reply) => {
+    fastify.post<{ Body: LoginInput }>(route('/login'), async (request, reply) => {
       const { email, password } = request.body;
+
+      // Rate-limiting hook — throw to reject the attempt
+      const rateLimitKey = request.ip || email;
+      if (opts.onLoginAttempt) {
+        try {
+          await opts.onLoginAttempt(rateLimitKey, request);
+        } catch (err: any) {
+          return reply.status(429).send({ error: err.message || 'Too many login attempts' });
+        }
+      }
 
       const user = await dataSource.getUserByEmail(email);
       if (!user || !user.passwordHash) {
+        await opts.onLoginFailure?.(rateLimitKey, request);
         return reply.status(401).send({ error: 'Invalid email or password' });
       }
 
       const valid = await shieldForge.verifyPassword(password, user.passwordHash);
       if (!valid) {
+        await opts.onLoginFailure?.(rateLimitKey, request);
         return reply.status(401).send({ error: 'Invalid email or password' });
       }
 
@@ -261,7 +299,7 @@ const shieldForgeFastifyPlugin: FastifyPluginAsync<ShieldForgeFastifyOptions> = 
   }
 
   if (routeConfig.register) {
-    fastify.post<{ Body: RegisterInput }>('/register', async (request, reply) => {
+    fastify.post<{ Body: RegisterInput }>(route('/register'), async (request, reply) => {
       const { email, password, username, name } = request.body;
 
       const existing = await dataSource.getUserByEmail(email);
@@ -277,7 +315,7 @@ const shieldForgeFastifyPlugin: FastifyPluginAsync<ShieldForgeFastifyOptions> = 
       await opts.onBeforeRegister?.({ email, password, username, name }, request);
 
       const passwordHash = await shieldForge.hashPassword(password);
-      const user = await dataSource.createUser({ email, password, username, name, passwordHash });
+      const user = await dataSource.createUser({ email, username, name, passwordHash });
       const token = shieldForge.generateToken({ userId: user.id, email: user.email });
       const sanitized = shieldForge.sanitizeUser(user);
 
@@ -290,14 +328,14 @@ const shieldForgeFastifyPlugin: FastifyPluginAsync<ShieldForgeFastifyOptions> = 
   }
 
   if (routeConfig.logout) {
-    fastify.post('/logout', async (_request, reply) => {
+    fastify.post(route('/logout'), async (_request, reply) => {
       clearSessionCookie(reply);
       return { success: true };
     });
   }
 
   if (routeConfig.me) {
-    fastify.get('/me', async (request, reply) => {
+    fastify.get(route('/me'), async (request, reply) => {
       if (!request.user) {
         return reply.status(401).send({ error: 'Not authenticated' });
       }
@@ -306,7 +344,7 @@ const shieldForgeFastifyPlugin: FastifyPluginAsync<ShieldForgeFastifyOptions> = 
   }
 
   if (routeConfig.updateProfile) {
-    fastify.patch<{ Body: UpdateProfileInput }>('/me', {
+    fastify.patch<{ Body: UpdateProfileInput }>(route('/me'), {
       preHandler: [requireAuth],
     }, async (request) => {
       const updated = await dataSource.updateUser(request.user!.id, request.body);
@@ -315,7 +353,7 @@ const shieldForgeFastifyPlugin: FastifyPluginAsync<ShieldForgeFastifyOptions> = 
   }
 
   if (routeConfig.changePassword) {
-    fastify.patch<{ Body: UpdatePasswordInput }>('/password', {
+    fastify.patch<{ Body: UpdatePasswordInput }>(route('/password'), {
       preHandler: [requireAuth],
     }, async (request, reply) => {
       const { currentPassword, newPassword } = request.body;
@@ -343,13 +381,25 @@ const shieldForgeFastifyPlugin: FastifyPluginAsync<ShieldForgeFastifyOptions> = 
   }
 
   if (routeConfig.requestReset) {
-    fastify.post<{ Body: { email: string } }>('/reset-request', async (request) => {
+    fastify.post<{ Body: { email: string } }>(route('/reset-request'), async (request, reply) => {
+      // Rate-limiting hook — throw to reject the attempt
+      if (opts.onResetAttempt) {
+        try {
+          await opts.onResetAttempt(request.ip || request.body.email, request);
+        } catch (err: any) {
+          return reply.status(429).send({ error: err.message || 'Too many reset attempts' });
+        }
+      }
+
       const user = await dataSource.getUserByEmail(request.body.email);
       if (user) {
         const code = shieldForge.generateResetCode();
+        const codeHash = shieldForge.hashResetCode(code);
         const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
-        await dataSource.createPasswordReset(user.id, code, expiresAt);
+        // Store the hash, not the raw code
+        await dataSource.createPasswordReset(user.id, codeHash, expiresAt);
         try {
+          // Send the raw code to the user via email
           await shieldForge.sendPasswordResetEmail(user.email, code);
         } catch {
           // Don't expose email sending failures
@@ -361,16 +411,18 @@ const shieldForgeFastifyPlugin: FastifyPluginAsync<ShieldForgeFastifyOptions> = 
   }
 
   if (routeConfig.resetPassword) {
-    fastify.post<{ Body: { code: string; newPassword: string } }>('/reset-password', async (request, reply) => {
+    fastify.post<{ Body: { code: string; newPassword: string } }>(route('/reset-password'), async (request, reply) => {
       const { code, newPassword } = request.body;
 
-      const reset = await dataSource.getPasswordReset(code);
+      // Look up by the hashed code
+      const codeHash = shieldForge.hashResetCode(code);
+      const reset = await dataSource.getPasswordReset(codeHash);
       if (!reset) {
         return reply.status(400).send({ error: 'Invalid or expired reset code' });
       }
 
       if (new Date() > reset.expiresAt) {
-        await dataSource.deletePasswordReset(code);
+        await dataSource.deletePasswordReset(codeHash);
         return reply.status(400).send({ error: 'Reset code has expired' });
       }
 
@@ -381,14 +433,14 @@ const shieldForgeFastifyPlugin: FastifyPluginAsync<ShieldForgeFastifyOptions> = 
 
       const newHash = await shieldForge.hashPassword(newPassword);
       await dataSource.updateUser(reset.userId, { passwordHash: newHash });
-      await dataSource.deletePasswordReset(code);
+      await dataSource.deletePasswordReset(codeHash);
 
       return { success: true };
     });
   }
 
   if (routeConfig.passwordStrength) {
-    fastify.post<{ Body: { password: string } }>('/password-strength', async (request) => {
+    fastify.post<{ Body: { password: string } }>(route('/password-strength'), async (request) => {
       return shieldForge.calculatePasswordStrength(request.body.password);
     });
   }

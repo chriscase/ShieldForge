@@ -134,6 +134,10 @@ export interface ShieldForgeConfig {
   jwtExpiresIn?: string;
   saltRounds?: number;
   smtp?: SmtpConfig;
+  /** JWT issuer claim — set this to your application/service name */
+  jwtIssuer?: string;
+  /** JWT audience claim — set this to your intended audience */
+  jwtAudience?: string;
 }
 
 /**
@@ -144,6 +148,8 @@ export interface PasskeyConfig {
   rpId: string;
   origin: string;
   challengeTTL?: number;
+  /** Optional injectable challenge store. Defaults to in-memory Map (not suitable for multi-instance). */
+  challengeStore?: ChallengeStore;
 }
 
 /**
@@ -165,17 +171,33 @@ export interface AuthProviderConfig {
 }
 
 /**
+ * Input for creating a new user in the data source.
+ * Deliberately excludes plaintext password — only the hash is passed to storage.
+ */
+export interface CreateUserInput {
+  email: string;
+  username?: string;
+  name?: string;
+  passwordHash: string;
+}
+
+/**
  * Data source interface for auth operations.
  * Implement this to connect ShieldForge to your database.
+ *
+ * SECURITY NOTES:
+ * - `createUser` receives a `CreateUserInput` that excludes plaintext passwords.
+ * - `createPasswordReset` receives a SHA-256 hash of the reset code, never the raw code.
+ * - `getPasswordReset` looks up by the hashed code.
  */
 export interface AuthDataSource {
   getUserById(id: string): Promise<User | null>;
   getUserByEmail(email: string): Promise<User | null>;
-  createUser(input: RegisterInput & { passwordHash: string }): Promise<User>;
+  createUser(input: CreateUserInput): Promise<User>;
   updateUser(id: string, input: Partial<User>): Promise<User>;
-  createPasswordReset(userId: string, code: string, expiresAt: Date): Promise<void>;
-  getPasswordReset(code: string): Promise<{ userId: string; expiresAt: Date } | null>;
-  deletePasswordReset(code: string): Promise<void>;
+  createPasswordReset(userId: string, codeHash: string, expiresAt: Date): Promise<void>;
+  getPasswordReset(codeHash: string): Promise<{ userId: string; expiresAt: Date } | null>;
+  deletePasswordReset(codeHash: string): Promise<void>;
 }
 
 /**
@@ -199,4 +221,20 @@ export interface Challenge {
   userId?: string;
   createdAt: Date;
   expiresAt: Date;
+}
+
+/**
+ * Injectable challenge store interface for WebAuthn.
+ * Implement this to use a persistent store (Redis, database, etc.)
+ * instead of the default in-memory Map.
+ */
+export interface ChallengeStore {
+  /** Store a challenge with optional user binding and TTL */
+  store(challenge: string, userId?: string, ttl?: number): Promise<void> | void;
+  /** Get a challenge if it exists and is not expired. Returns null otherwise. */
+  get(challenge: string): Promise<Challenge | null> | Challenge | null;
+  /** Delete a challenge (one-time use semantics) */
+  delete(challenge: string): Promise<void> | void;
+  /** Clear all expired challenges */
+  clearExpired(): Promise<void> | void;
 }

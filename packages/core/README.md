@@ -1,11 +1,11 @@
-# @shieldforge/core
+# @appforgeapps/shieldforge-core
 
 Backend authentication utilities for Node.js applications.
 
 ## Installation
 
 ```bash
-npm install @shieldforge/core
+npm install @appforgeapps/shieldforge-core
 ```
 
 Optional peer dependencies:
@@ -16,7 +16,7 @@ npm install nodemailer  # For email functionality
 ## Quick Start
 
 ```typescript
-import { ShieldForge } from '@shieldforge/core';
+import { ShieldForge } from '@appforgeapps/shieldforge-core';
 
 const auth = new ShieldForge({
   jwtSecret: process.env.JWT_SECRET!,
@@ -115,7 +115,7 @@ import {
   verifyToken,
   calculatePasswordStrength,
   sanitizeUser,
-} from '@shieldforge/core';
+} from '@appforgeapps/shieldforge-core';
 ```
 
 ## Configuration

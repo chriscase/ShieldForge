@@ -1,11 +1,11 @@
-# @shieldforge/browser
+# @appforgeapps/shieldforge-browser
 
 Client-side WebAuthn utilities for passwordless authentication in the browser.
 
 ## Installation
 
 ```bash
-npm install @shieldforge/browser
+npm install @appforgeapps/shieldforge-browser
 ```
 
 ## Quick Start
@@ -16,7 +16,7 @@ import {
   startAuthentication,
   isWebAuthnSupported,
   isPlatformAuthenticatorAvailable,
-} from '@shieldforge/browser';
+} from '@appforgeapps/shieldforge-browser';
 ```
 
 ## Registration Flow
@@ -115,7 +115,7 @@ import {
   base64UrlToBuffer,
   base64UrlToUint8Array,
   uint8ArrayToBase64Url,
-} from '@shieldforge/browser';
+} from '@appforgeapps/shieldforge-browser';
 
 // Convert buffer to base64url
 const base64url = bufferToBase64Url(arrayBuffer);
@@ -139,7 +139,7 @@ import {
   normalizeRegistrationOptions,
   normalizeAuthenticationOptions,
   publicKeyCredentialToJSON,
-} from '@shieldforge/browser';
+} from '@appforgeapps/shieldforge-browser';
 
 // Registration
 const normalizedOptions = normalizeRegistrationOptions(serverOptions);

@@ -200,7 +200,7 @@ npm install @appforgeapps/shieldforge-browser
 #### Backend Setup
 
 ```typescript
-import { ShieldForge } from '@shieldforge/core';
+import { ShieldForge } from '@appforgeapps/shieldforge-core';
 
 // Initialize ShieldForge
 const auth = new ShieldForge({
@@ -235,7 +235,7 @@ const payload = auth.verifyToken(token);
 #### Frontend Setup (React)
 
 ```tsx
-import { AuthProvider, useAuth, RequireAuth } from '@shieldforge/react';
+import { AuthProvider, useAuth, RequireAuth } from '@appforgeapps/shieldforge-react';
 
 // Wrap your app with AuthProvider
 function App() {
@@ -282,8 +282,8 @@ function ProtectedRoute() {
 #### Backend (GraphQL Server)
 
 ```typescript
-import { createResolvers, typeDefs } from '@shieldforge/graphql';
-import { ShieldForge } from '@shieldforge/core';
+import { createResolvers, typeDefs } from '@appforgeapps/shieldforge-graphql';
+import { ShieldForge } from '@appforgeapps/shieldforge-core';
 
 const auth = new ShieldForge({
   jwtSecret: process.env.JWT_SECRET!,
@@ -334,7 +334,7 @@ const server = new ApolloServer({
 #### Frontend (Apollo Client)
 
 ```tsx
-import { LOGIN_MUTATION, REGISTER_MUTATION, ME_QUERY } from '@shieldforge/graphql';
+import { LOGIN_MUTATION, REGISTER_MUTATION, ME_QUERY } from '@appforgeapps/shieldforge-graphql';
 import { useMutation, useQuery } from '@apollo/client';
 
 function LoginForm() {
@@ -358,7 +358,7 @@ function LoginForm() {
 #### Backend
 
 ```typescript
-import { PasskeyService } from '@shieldforge/passkey';
+import { PasskeyService } from '@appforgeapps/shieldforge-passkey';
 
 const passkeys = new PasskeyService({
   rpName: 'My App',

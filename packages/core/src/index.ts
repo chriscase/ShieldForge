@@ -1,15 +1,19 @@
 import { ShieldForgeConfig, JwtPayload, PasswordStrength, AuthUser, User } from '@appforgeapps/shieldforge-types';
 import { hashPassword, verifyPassword } from './password';
-import { generateToken, verifyToken, decodeToken } from './jwt';
+import { generateToken, verifyToken, decodeToken, type JwtVerifyOptions } from './jwt';
 import { calculatePasswordStrength } from './strength';
 import { sendPasswordResetEmail, sendEmail } from './email';
-import { sanitizeUser, generateResetCode, generateSecureToken } from './utils';
+import { sanitizeUser, generateResetCode, generateSecureToken, hashResetCode, verifyResetCode } from './utils';
 
 /**
  * Main ShieldForge class for authentication operations
  */
 export class ShieldForge {
-  private config: Required<Omit<ShieldForgeConfig, 'smtp'>> & { smtp?: ShieldForgeConfig['smtp'] };
+  private config: Required<Omit<ShieldForgeConfig, 'smtp' | 'jwtIssuer' | 'jwtAudience'>> & {
+    smtp?: ShieldForgeConfig['smtp'];
+    jwtIssuer?: string;
+    jwtAudience?: string;
+  };
 
   constructor(config: ShieldForgeConfig) {
     this.config = {
@@ -17,6 +21,8 @@ export class ShieldForge {
       jwtExpiresIn: config.jwtExpiresIn || '7d',
       saltRounds: config.saltRounds || 12,
       smtp: config.smtp,
+      jwtIssuer: config.jwtIssuer,
+      jwtAudience: config.jwtAudience,
     };
   }
 
@@ -38,14 +44,20 @@ export class ShieldForge {
    * Generate a JWT token
    */
   generateToken(payload: JwtPayload): string {
-    return generateToken(payload, this.config.jwtSecret, this.config.jwtExpiresIn);
+    return generateToken(payload, this.config.jwtSecret, this.config.jwtExpiresIn, {
+      issuer: this.config.jwtIssuer,
+      audience: this.config.jwtAudience,
+    });
   }
 
   /**
-   * Verify a JWT token
+   * Verify a JWT token (enforces HS256 algorithm, optional issuer/audience)
    */
   verifyToken(token: string): JwtPayload {
-    return verifyToken(token, this.config.jwtSecret);
+    return verifyToken(token, this.config.jwtSecret, {
+      issuer: this.config.jwtIssuer,
+      audience: this.config.jwtAudience,
+    });
   }
 
   /**
@@ -84,6 +96,20 @@ export class ShieldForge {
   }
 
   /**
+   * Hash a reset code for secure storage (SHA-256)
+   */
+  hashResetCode(code: string): string {
+    return hashResetCode(code);
+  }
+
+  /**
+   * Verify a reset code against a stored hash (constant-time)
+   */
+  verifyResetCode(code: string, storedHash: string): boolean {
+    return verifyResetCode(code, storedHash);
+  }
+
+  /**
    * Send a password reset email
    */
   async sendPasswordResetEmail(to: string, resetCode: string, resetUrl?: string): Promise<void> {
@@ -115,6 +141,8 @@ export {
   sanitizeUser,
   generateResetCode,
   generateSecureToken,
+  hashResetCode,
+  verifyResetCode,
   sendPasswordResetEmail,
   sendEmail,
 };

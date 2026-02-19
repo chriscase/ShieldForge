@@ -1,11 +1,11 @@
-# @shieldforge/types
+# @appforgeapps/shieldforge-types
 
 Shared TypeScript types and interfaces for the ShieldForge authentication library.
 
 ## Installation
 
 ```bash
-npm install @shieldforge/types
+npm install @appforgeapps/shieldforge-types
 ```
 
 ## Usage
@@ -20,7 +20,7 @@ import type {
   UserAccountStatus,
   PasswordStrength,
   ShieldForgeConfig,
-} from '@shieldforge/types';
+} from '@appforgeapps/shieldforge-types';
 ```
 
 ## Exported Types
@@ -42,9 +42,9 @@ import type {
 
 ### Configuration Types
 
-- `ShieldForgeConfig` - Configuration for @shieldforge/core
-- `AuthProviderConfig` - Configuration for @shieldforge/react
-- `PasskeyConfig` - Configuration for @shieldforge/passkey
+- `ShieldForgeConfig` - Configuration for @appforgeapps/shieldforge-core
+- `AuthProviderConfig` - Configuration for @appforgeapps/shieldforge-react
+- `PasskeyConfig` - Configuration for @appforgeapps/shieldforge-passkey
 - `SmtpConfig` - SMTP configuration for email sending
 
 ### Other Types

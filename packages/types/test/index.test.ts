@@ -6,6 +6,7 @@ import type {
   Session,
   LoginInput,
   RegisterInput,
+  CreateUserInput,
   UpdateProfileInput,
   UpdatePasswordInput,
   AuthPayload,
@@ -14,6 +15,9 @@ import type {
   ShieldForgeConfig,
   PasskeyConfig,
   AuthProviderConfig,
+  AuthDataSource,
+  ChallengeStore,
+  Challenge,
 } from '../src/index';
 
 describe('types', () => {
@@ -193,9 +197,79 @@ describe('types', () => {
         initialToken: null,
         initialUser: null,
       };
-      
+
       expect(config.storageKey).toBe('auth.token');
       expect(config.pollInterval).toBe(60000);
+    });
+  });
+
+  describe('CreateUserInput interface', () => {
+    it('should NOT include plaintext password', () => {
+      const input: CreateUserInput = {
+        email: 'test@example.com',
+        passwordHash: '$2b$12$abcdef...',
+        username: 'testuser',
+        name: 'Test User',
+      };
+
+      expect(input.email).toBe('test@example.com');
+      expect(input.passwordHash).toBeDefined();
+      expect('password' in input).toBe(false);
+    });
+
+    it('should accept minimal input (email + passwordHash)', () => {
+      const input: CreateUserInput = {
+        email: 'test@example.com',
+        passwordHash: '$2b$12$abcdef...',
+      };
+
+      expect(input.email).toBe('test@example.com');
+    });
+  });
+
+  describe('ShieldForgeConfig JWT options', () => {
+    it('should accept jwtIssuer and jwtAudience', () => {
+      const config: ShieldForgeConfig = {
+        jwtSecret: 'secret',
+        jwtIssuer: 'my-service',
+        jwtAudience: 'my-frontend',
+      };
+
+      expect(config.jwtIssuer).toBe('my-service');
+      expect(config.jwtAudience).toBe('my-frontend');
+    });
+  });
+
+  describe('ChallengeStore interface', () => {
+    it('should accept an implementation with all methods', () => {
+      const store: ChallengeStore = {
+        store: async () => {},
+        get: async () => null,
+        delete: async () => {},
+        clearExpired: async () => {},
+      };
+
+      expect(store.store).toBeDefined();
+      expect(store.get).toBeDefined();
+      expect(store.delete).toBeDefined();
+      expect(store.clearExpired).toBeDefined();
+    });
+  });
+
+  describe('AuthDataSource interface', () => {
+    it('createUser should accept CreateUserInput (no plaintext password)', () => {
+      // This is a type-level test — verify the interface shape
+      const mockDS: AuthDataSource = {
+        getUserById: async () => null,
+        getUserByEmail: async () => null,
+        createUser: async (input: CreateUserInput) => ({ id: '1', email: input.email }),
+        updateUser: async (id, input) => ({ id, email: 'test@example.com', ...input }),
+        createPasswordReset: async () => {},
+        getPasswordReset: async () => null,
+        deletePasswordReset: async () => {},
+      };
+
+      expect(mockDS.createUser).toBeDefined();
     });
   });
 });
