@@ -82,7 +82,13 @@ if [[ "$DRY_RUN" == true ]]; then
   echo "[DRY RUN] Would perform the following:"
   echo "  1. Bump all packages to $VERSION"
   echo "  2. Clean and rebuild all packages"
-  echo "  3. Publish in order: types → browser → core → graphql → passkey → react"
+  if [[ "$VERSION" == *-* ]]; then
+    DRY_LABEL="${VERSION#*-}"
+    DRY_LABEL="${DRY_LABEL%%.*}"
+    echo "  3. Publish in order: types → browser → core → graphql → passkey → react (tag: $DRY_LABEL)"
+  else
+    echo "  3. Publish in order: types → browser → core → graphql → passkey → react"
+  fi
   echo "  4. Commit version bump and push"
   echo ""
   echo "Packages:"
@@ -104,12 +110,22 @@ npm run build
 # Publish in dependency order
 PACKAGES=(types browser core graphql passkey react)
 
+# Determine if this is a prerelease (contains a hyphen, e.g. 2.0.0-rc.1)
+PUBLISH_TAG=""
+if [[ "$VERSION" == *-* ]]; then
+  # Extract the prerelease label (e.g. "rc" from "2.0.0-rc.1", "beta" from "1.0.0-beta.3")
+  PRE_LABEL="${VERSION#*-}"     # rc.1
+  PRE_LABEL="${PRE_LABEL%%.*}"  # rc
+  PUBLISH_TAG="--tag $PRE_LABEL"
+  echo "Pre-release detected: publishing with --tag $PRE_LABEL"
+fi
+
 echo ""
 echo "Publishing packages..."
 for pkg in "${PACKAGES[@]}"; do
   echo ""
   echo "--- Publishing @appforgeapps/shieldforge-$pkg@$VERSION ---"
-  npm publish --workspace="@appforgeapps/shieldforge-$pkg" --access public
+  npm publish --workspace="@appforgeapps/shieldforge-$pkg" --access public $PUBLISH_TAG
 done
 
 echo ""
