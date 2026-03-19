@@ -39,8 +39,8 @@ export interface AuthUser {
   avatarUrl?: string | null;
   accountStatus?: UserAccountStatus;
   emailVerified?: boolean;
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
 }
 
 /**
