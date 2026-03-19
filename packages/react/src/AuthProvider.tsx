@@ -1,18 +1,19 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { AuthUser, AuthProviderConfig } from '@appforgeapps/shieldforge-types';
 
-export interface AuthContextValue {
-  user: AuthUser | null;
+export interface AuthContextValue<TUser extends AuthUser = AuthUser> {
+  user: TUser | null;
   token: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (token: string, user: AuthUser) => void;
+  login: (token: string, user: TUser) => void;
   logout: () => void;
-  updateUser: (user: AuthUser) => void;
+  updateUser: (user: TUser) => void;
   refreshAuth?: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const AuthContext = createContext<AuthContextValue<any> | undefined>(undefined);
 
 export interface AuthProviderProps {
   children: React.ReactNode;
@@ -272,10 +273,10 @@ export function AuthProvider({
 /**
  * Hook to access authentication context
  */
-export function useAuthContext(): AuthContextValue {
+export function useAuthContext<TUser extends AuthUser = AuthUser>(): AuthContextValue<TUser> {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuthContext must be used within an AuthProvider');
   }
-  return context;
+  return context as AuthContextValue<TUser>;
 }

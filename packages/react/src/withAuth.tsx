@@ -2,8 +2,8 @@ import React from 'react';
 import { useAuth } from './useAuth';
 import { AuthUser } from '@appforgeapps/shieldforge-types';
 
-export interface WithAuthProps {
-  user: AuthUser | null;
+export interface WithAuthProps<TUser extends AuthUser = AuthUser> {
+  user: TUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
 }
