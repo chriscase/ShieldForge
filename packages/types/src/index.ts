@@ -32,11 +32,11 @@ export interface User {
 export interface AuthUser {
   id: string;
   email: string;
-  username?: string;
-  name?: string;
-  displayName?: string;
-  role?: string;
-  avatarUrl?: string;
+  username?: string | null;
+  name?: string | null;
+  displayName?: string | null;
+  role?: string | null;
+  avatarUrl?: string | null;
   accountStatus?: UserAccountStatus;
   emailVerified?: boolean;
   createdAt?: Date;
