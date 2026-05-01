@@ -5,7 +5,7 @@ Authentication library for React/Node/GraphQL apps — six packages published to
 > 📚 **Part of the Abydonian ecosystem.** Cross-product context lives in [`AbydosCodex`](https://github.com/chriscase/AbydosCodex) at `~/Documents/GitHub/AbydosCodex`. Before non-trivial work in this repo, skim:
 > - `20 - Products/ShieldForge.md` — current product state
 > - `70 - Journals/ShieldForge Journal.md` — decisions & non-obvious discoveries (incl. the "131 tests passing while defaults insecure" lesson)
-> - `80 - Daily/<today>.md` — recent context
+> - `80 - Daily/<YYYY>/<MM>/<today>.md` — recent context
 >
 > See `AbydosCodex/CLAUDE.md` for the touchpoint checklist (when to update which vault file). Append a Sessions entry to today's daily journal before stopping any non-trivial session.
 
