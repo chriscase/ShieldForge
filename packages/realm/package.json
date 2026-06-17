@@ -1,0 +1,55 @@
+{
+  "name": "@appforgeapps/shieldforge-realm",
+  "version": "0.1.0",
+  "description": "Opt-in cross-site SSO 'realm' (trust group) for ShieldForge — peer-trust, per-member RS256 keys, no central hub. A site joins a realm by config; absence of config = unchanged.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chriscase/ShieldForge.git",
+    "directory": "packages/realm"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./cookie": {
+      "types": "./dist/cookie.d.ts",
+      "default": "./dist/cookie.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "test": "vitest run --config vitest.config.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "authentication",
+    "sso",
+    "single-sign-on",
+    "realm",
+    "federation",
+    "jwt",
+    "rs256",
+    "jwks",
+    "shieldforge"
+  ],
+  "author": "chriscase",
+  "license": "MIT",
+  "dependencies": {
+    "jose": "^5.9.6"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}

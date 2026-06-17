@@ -98,9 +98,18 @@ if [[ "$DRY_RUN" == true ]]; then
   exit 0
 fi
 
-# Bump versions
-echo "Bumping all packages to $VERSION..."
-npm version "$VERSION" --no-git-tag-version --workspaces
+# Bump versions — ONLY the six lockstep packages. @appforgeapps/shieldforge-realm
+# is intentionally EXCLUDED: it versions independently (own 0.x) and publishes via
+# its own path, so it never force-bumps consumers pinned to older shieldforge-*
+# lines. Do NOT switch this back to --workspaces (it would sweep realm in).
+echo "Bumping the six lockstep packages to $VERSION..."
+npm version "$VERSION" --no-git-tag-version \
+  --workspace=@appforgeapps/shieldforge-types \
+  --workspace=@appforgeapps/shieldforge-browser \
+  --workspace=@appforgeapps/shieldforge-core \
+  --workspace=@appforgeapps/shieldforge-graphql \
+  --workspace=@appforgeapps/shieldforge-passkey \
+  --workspace=@appforgeapps/shieldforge-react
 
 # Clean and rebuild
 echo "Cleaning and rebuilding..."
