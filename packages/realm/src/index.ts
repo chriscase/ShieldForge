@@ -9,11 +9,11 @@
  * `@appforgeapps/shieldforge-realm/cookie` subpath so verifier-only consumers
  * can tree-shake it.
  */
-export * from './types';
-export { generateRealmKeypair } from './keys';
-export { createRealmIssuer, type RealmIssuer } from './issuer';
-export { createRealmVerifier, type RealmVerifier } from './verifier';
-export { bootstrapRealmSession } from './bootstrap';
-export { InMemoryReplayStore } from './replay';
-export { generateRealmNonce } from './nonce';
-export { buildLogoutToken, verifyLogoutToken, type RealmLogoutIdentity } from './logout';
+export * from './types.js';
+export { generateRealmKeypair } from './keys.js';
+export { createRealmIssuer, type RealmIssuer } from './issuer.js';
+export { createRealmVerifier, type RealmVerifier } from './verifier.js';
+export { bootstrapRealmSession } from './bootstrap.js';
+export { InMemoryReplayStore } from './replay.js';
+export { generateRealmNonce } from './nonce.js';
+export { buildLogoutToken, verifyLogoutToken, type RealmLogoutIdentity } from './logout.js';

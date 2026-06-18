@@ -1,5 +1,5 @@
 import { generateKeyPair, exportPKCS8, exportJWK, calculateJwkThumbprint } from 'jose';
-import type { RealmPublicJwk } from './types';
+import type { RealmPublicJwk } from './types.js';
 
 /**
  * Generate an RS256 realm signing keypair plus its RFC-7638 thumbprint `kid`.

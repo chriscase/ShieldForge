@@ -1,5 +1,5 @@
-import type { RealmIdentity, RealmBootstrapDeps, RealmBootstrapResult } from './types';
-import { RealmEmailUnverifiedError } from './types';
+import type { RealmIdentity, RealmBootstrapDeps, RealmBootstrapResult } from './types.js';
+import { RealmEmailUnverifiedError } from './types.js';
 
 /**
  * Turn a VERIFIED realm identity into a local-user outcome the host can mint its

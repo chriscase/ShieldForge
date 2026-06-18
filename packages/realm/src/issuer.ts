@@ -1,6 +1,6 @@
 import { SignJWT, importPKCS8, exportJWK, calculateJwkThumbprint } from 'jose';
 import { randomUUID } from 'node:crypto';
-import type { RealmIssuerConfig, IssueTokenInput, RealmPublicJwk } from './types';
+import type { RealmIssuerConfig, IssueTokenInput, RealmPublicJwk } from './types.js';
 
 const DEFAULT_TTL_SEC = 120;
 const MAX_TTL_SEC = 300;

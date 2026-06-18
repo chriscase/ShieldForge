@@ -1,7 +1,7 @@
 import { jwtVerify, decodeJwt } from 'jose';
-import { buildRosterResolvers } from './internal/jwks';
-import type { RealmVerifierConfig, RealmIdentity } from './types';
-import { RealmVerifyError } from './types';
+import { buildRosterResolvers } from './internal/jwks.js';
+import type { RealmVerifierConfig, RealmIdentity } from './types.js';
+import { RealmVerifyError } from './types.js';
 
 export interface RealmVerifier {
   /** Verify a realm bootstrap token and return the trusted identity. */

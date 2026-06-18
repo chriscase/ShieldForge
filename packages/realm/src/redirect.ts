@@ -15,11 +15,11 @@
  *  - `return_to` is validated against a PER-MEMBER allow-list, preventing
  *    open-redirect token exfiltration.
  */
-import { generateRealmNonce } from './nonce';
-import type { RealmIssuer } from './issuer';
-import type { RealmVerifier } from './verifier';
-import type { RealmIdentity } from './types';
-import { RealmVerifyError } from './types';
+import { generateRealmNonce } from './nonce.js';
+import type { RealmIssuer } from './issuer.js';
+import type { RealmVerifier } from './verifier.js';
+import type { RealmIdentity } from './types.js';
+import { RealmVerifyError } from './types.js';
 
 export interface RealmAuthorizeRequest {
   realmId: string;

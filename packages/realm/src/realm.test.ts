@@ -1,22 +1,22 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import { SignJWT, importPKCS8 } from 'jose';
-import { generateRealmKeypair } from './keys';
-import { createRealmIssuer } from './issuer';
-import { createRealmVerifier } from './verifier';
-import { bootstrapRealmSession } from './bootstrap';
-import { InMemoryReplayStore } from './replay';
+import { generateRealmKeypair } from './keys.js';
+import { createRealmIssuer } from './issuer.js';
+import { createRealmVerifier } from './verifier.js';
+import { bootstrapRealmSession } from './bootstrap.js';
+import { InMemoryReplayStore } from './replay.js';
 import {
   RealmEmailUnverifiedError,
   RealmVerifyError,
   type RealmBootstrapDeps,
   type RealmIdentity,
-} from './types';
+} from './types.js';
 import {
   realmCookieDomain,
   buildRealmSetCookie,
   buildRealmClearCookie,
   readRealmCookie,
-} from './cookie';
+} from './cookie.js';
 
 const REALM = 'msm-test';
 const AUD = `urn:sfrealm:${REALM}`;

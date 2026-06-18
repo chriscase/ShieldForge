@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeAll } from 'vitest';
-import { generateRealmKeypair } from './keys';
-import { createRealmIssuer } from './issuer';
-import { createRealmVerifier } from './verifier';
-import { InMemoryReplayStore } from './replay';
-import { RealmVerifyError } from './types';
-import { buildAuthorizeUrl, parseAuthorizeRequest, handleAuthorize, handleCallback } from './redirect';
-import { buildLogoutToken, verifyLogoutToken } from './logout';
+import { generateRealmKeypair } from './keys.js';
+import { createRealmIssuer } from './issuer.js';
+import { createRealmVerifier } from './verifier.js';
+import { InMemoryReplayStore } from './replay.js';
+import { RealmVerifyError } from './types.js';
+import { buildAuthorizeUrl, parseAuthorizeRequest, handleAuthorize, handleCallback } from './redirect.js';
+import { buildLogoutToken, verifyLogoutToken } from './logout.js';
 
 const REALM = 'xrealm';
 const MEMBER_A = 'urn:sfrealm:x:A';

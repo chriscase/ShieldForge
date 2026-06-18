@@ -13,9 +13,9 @@
  */
 import { SignJWT, importPKCS8, exportJWK, calculateJwkThumbprint, jwtVerify, decodeJwt } from 'jose';
 import { randomUUID } from 'node:crypto';
-import { buildRosterResolvers } from './internal/jwks';
-import type { RealmRosterMember, ReplayStore, RealmPublicJwk } from './types';
-import { RealmVerifyError } from './types';
+import { buildRosterResolvers } from './internal/jwks.js';
+import type { RealmRosterMember, ReplayStore, RealmPublicJwk } from './types.js';
+import { RealmVerifyError } from './types.js';
 
 const LOGOUT_TTL_SEC = 60;
 

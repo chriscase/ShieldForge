@@ -1,5 +1,5 @@
 import { createLocalJWKSet, createRemoteJWKSet, type JWTVerifyGetKey } from 'jose';
-import type { RealmRosterMember } from '../types';
+import type { RealmRosterMember } from '../types.js';
 
 /**
  * Build a per-peer key resolver map keyed by member id. Selecting the resolver

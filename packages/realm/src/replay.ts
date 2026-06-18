@@ -1,4 +1,4 @@
-import type { ReplayStore } from './types';
+import type { ReplayStore } from './types.js';
 
 /**
  * Default in-memory ReplayStore. PER-INSTANCE only — fine for a single
