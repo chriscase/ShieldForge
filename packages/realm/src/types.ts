@@ -47,6 +47,8 @@ export interface RealmTokenClaims {
   exp: number;
   /** Single-use replay id. */
   jti: string;
+  /** Optional handshake nonce (redirect transport) binding the token to one exchange. */
+  nonce?: string;
 }
 
 /** The verified identity returned by the verifier; safe to act on. */
@@ -59,6 +61,8 @@ export interface RealmIdentity {
   realm: string;
   sub?: string;
   jti: string;
+  /** Handshake nonce echoed from the redirect transport, if present. */
+  nonce?: string;
 }
 
 /** A signing key a member holds (PEM PKCS#8 private key). */
@@ -125,6 +129,8 @@ export interface IssueTokenInput {
   name?: string;
   amr?: string[];
   authTime?: number;
+  /** Optional handshake nonce (redirect transport). */
+  nonce?: string;
 }
 
 /** What the host must supply to the bootstrap (host-agnostic). */

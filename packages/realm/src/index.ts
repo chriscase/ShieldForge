@@ -15,3 +15,5 @@ export { createRealmIssuer, type RealmIssuer } from './issuer';
 export { createRealmVerifier, type RealmVerifier } from './verifier';
 export { bootstrapRealmSession } from './bootstrap';
 export { InMemoryReplayStore } from './replay';
+export { generateRealmNonce } from './nonce';
+export { buildLogoutToken, verifyLogoutToken, type RealmLogoutIdentity } from './logout';

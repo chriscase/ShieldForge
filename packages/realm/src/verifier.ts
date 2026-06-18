@@ -1,4 +1,5 @@
-import { jwtVerify, createLocalJWKSet, createRemoteJWKSet, decodeJwt, type JWTVerifyGetKey } from 'jose';
+import { jwtVerify, decodeJwt } from 'jose';
+import { buildRosterResolvers } from './internal/jwks';
 import type { RealmVerifierConfig, RealmIdentity } from './types';
 import { RealmVerifyError } from './types';
 
@@ -19,16 +20,7 @@ export function createRealmVerifier(config: RealmVerifierConfig): RealmVerifier 
   const clockTolerance = config.clockToleranceSec ?? 5;
   const maxTokenAge = config.maxTokenAgeSec ?? 300;
 
-  const resolvers = new Map<string, JWTVerifyGetKey>();
-  for (const m of config.roster) {
-    if (m.publicJwks && m.publicJwks.length) {
-      resolvers.set(m.id, createLocalJWKSet({ keys: m.publicJwks as Parameters<typeof createLocalJWKSet>[0]['keys'] }));
-    } else if (m.jwksUri) {
-      resolvers.set(m.id, createRemoteJWKSet(new URL(m.jwksUri)));
-    } else {
-      throw new Error(`realm roster member ${m.id} needs publicJwks or jwksUri`);
-    }
-  }
+  const resolvers = buildRosterResolvers(config.roster);
 
   return {
     async verifyToken(token: string): Promise<RealmIdentity> {
@@ -76,6 +68,7 @@ export function createRealmVerifier(config: RealmVerifierConfig): RealmVerifier 
         issuer: iss,
         realm: config.realmId,
         sub: typeof payload.sub === 'string' && payload.sub ? payload.sub : undefined,
+        nonce: typeof payload.nonce === 'string' ? payload.nonce : undefined,
         jti,
       };
     },

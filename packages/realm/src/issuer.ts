@@ -48,6 +48,7 @@ export async function createRealmIssuer(config: RealmIssuerConfig): Promise<Real
       if (input.name) claims.name = input.name;
       if (input.amr) claims.amr = input.amr;
       if (typeof input.authTime === 'number') claims.auth_time = input.authTime;
+      if (input.nonce) claims.nonce = input.nonce; // redirect-transport handshake binding
 
       return new SignJWT(claims)
         .setProtectedHeader({ alg: 'RS256', kid: signer.kid })
