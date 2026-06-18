@@ -7,7 +7,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build -w @appforgeapps/shieldforge-types && npm run build -w @appforgeapps/shieldforge-browser && npm run build -w @appforgeapps/shieldforge-core && npm run build -w @appforgeapps/shieldforge-graphql && npm run build -w @appforgeapps/shieldforge-passkey && npm run build -w @appforgeapps/shieldforge-react",
+    "build": "npm run build -w @appforgeapps/shieldforge-types && npm run build -w @appforgeapps/shieldforge-browser && npm run build -w @appforgeapps/shieldforge-core && npm run build -w @appforgeapps/shieldforge-graphql && npm run build -w @appforgeapps/shieldforge-passkey && npm run build -w @appforgeapps/shieldforge-react && npm run build -w @appforgeapps/shieldforge-realm",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
